@@ -1,1 +1,4 @@
 Aca se dejara la sintaxis para poner en la terminal 
+
+Buenas Practicas de commit
+https://www.conventionalcommits.org/en/v1.0.0/
