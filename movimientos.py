@@ -1,5 +1,4 @@
 import pygame
-from numpy.ma.core import true_divide
 
 class movimientos:
     def __init__(self):
