@@ -1,41 +1,32 @@
 import pygame 
 import sys
+from core.entities.movement import manejar_movimiento
+from core.entities.player import Player
+from config import *
+
 pygame.init() 
 
-ancho = 700
-alto = 550
-ventana_juego = pygame.display.set_mode((ancho, alto)) 
+ventana_juego = pygame.display.set_mode((ANCHO, ALTO)) 
 pygame.display.set_caption("Pykemon")
 
-black = (0, 0, 0)
-white = (255, 255, 255)
-red = (255, 0, 0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
-
-cuadrado_tamano = 32
-cuadrado_x = ancho // 2 - cuadrado_tamano // 2
-cuadrado_y = alto // 2 - cuadrado_tamano // 2
-velocidad = 4
-
 reloj = pygame.time.Clock()
+player = Player(ANCHO, ALTO)
 jugando = True
 
-while jugando == True : 
+while jugando: 
     for evento in pygame.event.get(): 
         if evento.type == pygame.QUIT: 
             jugando = False
-
-    cuadrado_x = max(0, min(cuadrado_x, ancho - cuadrado_tamano))
-    cuadrado_y = max(0, min(cuadrado_y, alto - cuadrado_tamano))
-
-    ventana_juego.fill(black)  
-    pygame.draw.rect(ventana_juego, red, (cuadrado_x, cuadrado_y, cuadrado_tamano, cuadrado_tamano))
-
+    teclas = pygame.key.get_pressed()
+    
+    # Actualizar
+    player.update(teclas)
+    
+    #Renderizado
+    ventana_juego.fill(BLACK)
+    player.dibujar(ventana_juego)
     pygame.display.flip()
-
-    reloj.tick(30)
-
+    reloj.tick(FPS)
 pygame.quit() 
 sys.exit()
 
