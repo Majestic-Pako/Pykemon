@@ -5,6 +5,7 @@
   <objectgroup draworder="index" id="4">
    <object id="4" x="0.0722837" y="0" width="31.9494" height="32.0217"/>
    <object id="5" x="0" y="0" width="32" height="32"/>
+   <object id="6" x="0" y="0" width="32" height="32"/>
   </objectgroup>
  </tile>
 </tileset>
