@@ -25,7 +25,7 @@ while jugando:
     teclas = pygame.key.get_pressed()
     
     player.update(teclas)
-    manejar_movimiento(player, teclas, mapa.colisiones)
+    manejar_movimiento(player, teclas, mapa.colisiones, mapa.npcs)
     camera.update(player.rect)
     ventana_juego.fill(BLACK)
     mapa.dibujar(ventana_juego, camera)

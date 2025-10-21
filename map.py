@@ -1,6 +1,7 @@
 import pytmx
 import pygame
 from pytmx.util_pygame import load_pygame
+from core.entities.npc import NPC
 
 class Mapa:
     def __init__(self, ruta_mapa):
@@ -15,6 +16,14 @@ class Mapa:
             for obj in collision_layer:
                 rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
                 self.colisiones.append(rect)
+            self.npcs = []
+            npc_layer = self.tmx_data.get_layer_by_name("NPC")
+            if npc_layer:
+                for obj in npc_layer:
+                    nombre = obj.name if hasattr(obj, 'name') else "NPC"
+                    sprite_id = obj.properties.get('Sprite_id', 'default')
+                    npc = NPC(obj.x, obj.y, nombre, sprite_id)
+                    self.npcs.append(npc)
         except Exception as e:
             print("Fallo el mapa pa ...", e)
             raise
@@ -27,3 +36,5 @@ class Mapa:
                         px = x * self.mapa_tmx.tilewidth
                         py = y * self.mapa_tmx.tileheight
                         superficie.blit(imagen, (px - camera.x, py - camera.y))
+                for npc in self.npcs:
+                    npc.dibujar(superficie, camera)
