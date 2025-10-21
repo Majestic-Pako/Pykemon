@@ -22,7 +22,9 @@ class Mapa:
                 for obj in npc_layer:
                     nombre = obj.name if hasattr(obj, 'name') else "NPC"
                     sprite_id = obj.properties.get('Sprite_id', 'default')
-                    npc = NPC(obj.x, obj.y, nombre, sprite_id)
+                    dialog_id = obj.properties.get('dialog_id', 'Sin dialogo') 
+                    npc_id=obj.properties.get('npc_id', '?')
+                    npc = NPC(obj.x, obj.y, nombre, sprite_id, dialog_id, npc_id)
                     self.npcs.append(npc)
         except Exception as e:
             print("Fallo el mapa pa ...", e)

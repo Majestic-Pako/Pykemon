@@ -23,13 +23,13 @@ while jugando:
         if evento.type == pygame.QUIT: 
             jugando = False
     teclas = pygame.key.get_pressed()
-    
     player.update(teclas)
     manejar_movimiento(player, teclas, mapa.colisiones, mapa.npcs)
     camera.update(player.rect)
     ventana_juego.fill(BLACK)
     mapa.dibujar(ventana_juego, camera)
     player.dibujar(ventana_juego, camera)
+    player.manejar_dialogo(ventana_juego, mapa.npcs, teclas)
     pygame.display.flip()
     reloj.tick(FPS)
 pygame.quit() 

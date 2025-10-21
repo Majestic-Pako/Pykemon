@@ -2,10 +2,12 @@ import pygame
 from config import *
 
 class NPC(pygame.sprite.Sprite):
-    def __init__(self, x, y, nombre, sprite_id):
+    def __init__(self, x, y, nombre, sprite_id,dialog_id='Sin dialogo',npc_id='?'):
         super().__init__()
         self.nombre = nombre
         self.sprite_id = sprite_id
+        self.dialog_id = dialog_id
+        self.npc_id = npc_id
         self.image = self.cargar_sprite()
         self.rect = self.image.get_rect(topleft=(x, y))
         self.interaction_rect = self.rect.inflate(TAMAÑO_CUADRADO, TAMAÑO_CUADRADO)
