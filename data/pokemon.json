@@ -1,0 +1,83 @@
+
+{
+    "treecko": {
+        "nombre": "Treecko",
+        "tipo1": "Planta",
+        "tipo2": null,
+        "stats": {
+            "ps": 40,
+            "ataque": 45,
+            "defensa": 35,
+            "ataque_esp": 65,
+            "defensa_esp": 55,
+            "velocidad": 70
+        },
+        "nivel_base": 5,
+        "sprite_id": "treecko",
+        "descripcion": "Treecko tiene unas almohadillas en las plantas de los pies que le permiten andar por las paredes. Es tranquilo y sereno."
+    },
+    "torchic": {
+        "nombre": "Torchic",
+        "tipo1": "Fuego",
+        "tipo2": null,
+        "stats": {
+            "ps": 45,
+            "ataque": 60,
+            "defensa": 40,
+            "ataque_esp": 70,
+            "defensa_esp": 50,
+            "velocidad": 45
+        },
+        "nivel_base": 5,
+        "sprite_id": "torchic",
+        "descripcion": "Torchic tiene un lugar en su interior en el que guarda las llamas. Este Pokemon lanza bolas de fuego que pueden dejar las cosas carbonizadas."
+    },
+    "mudkip": {
+        "nombre": "Mudkip",
+        "tipo1": "Agua",
+        "tipo2": null,
+        "stats": {
+            "ps": 50,
+            "ataque": 70,
+            "defensa": 50,
+            "ataque_esp": 50,
+            "defensa_esp": 50,
+            "velocidad": 40
+        },
+        "nivel_base": 5,
+        "sprite_id": "mudkip",
+        "descripcion": "La aleta que Mudkip tiene en la cabeza le sirve para detectar las corrientes de aire y saber lo que ocurre a su alrededor sin necesidad de usar los ojos."
+    },
+    "rattata": {
+        "nombre": "Rattata",
+        "tipo1": "Normal",
+        "tipo2": null,
+        "stats": {
+            "ps": 30,
+            "ataque": 56,
+            "defensa": 30,
+            "ataque_esp": 25,
+            "defensa_esp": 35,
+            "velocidad": 72
+        },
+        "nivel_base": 4,
+        "sprite_id": "rattata",
+        "descripcion": "Rattata no es exigente con la comida y se alimenta de cualquier cosa. Sus colmillos no dejan de crecer, por lo que roe rocas y troncos."
+    },
+    "pidgey": {
+        "nombre": "Pidgey",
+        "tipo1": "Normal",
+        "tipo2": "Volador",
+        "stats": {
+            "ps": 40,
+            "ataque": 45,
+            "defensa": 40,
+            "ataque_esp": 35,
+            "defensa_esp": 35,
+            "velocidad": 56
+        },
+        "nivel_base": 4,
+        "sprite_id": "pidgey",
+        "descripcion": "Pidgey tiene un sentido de la orientacion muy desarrollado. Es capaz de regresar a su nido desde cualquier lugar por muy lejos que este."
+    }
+}

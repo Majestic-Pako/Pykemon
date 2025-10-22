@@ -1,0 +1,92 @@
+{
+    "placaje": {
+        "nombre": "Placaje",
+        "tipo": "Normal",
+        "categoria": "fisico",
+        "poder": 40,
+        "precision": 100,
+        "pp": 35,
+        "descripcion": "Golpea con todo el cuerpo"
+    },
+    "absorber": {
+        "nombre": "Absorber",
+        "tipo": "Planta",
+        "categoria": "especial",
+        "poder": 20,
+        "precision": 100,
+        "pp": 25,
+        "descripcion": "Absorbe PS. Recupera la mitad del daño infligido"
+    },
+    "hoja_afilada": {
+        "nombre": "Hoja Afilada",
+        "tipo": "Planta",
+        "categoria": "fisico",
+        "poder": 55,
+        "precision": 95,
+        "pp": 25,
+        "descripcion": "Corta con hojas afiladas"
+    },
+    "arañazo": {
+        "nombre": "Arañazo",
+        "tipo": "Normal",
+        "categoria": "fisico",
+        "poder": 40,
+        "precision": 100,
+        "pp": 35,
+        "descripcion": "Araña con garras afiladas"
+    },
+    "ascuas": {
+        "nombre": "Ascuas",
+        "tipo": "Fuego",
+        "categoria": "especial",
+        "poder": 40,
+        "precision": 100,
+        "pp": 25,
+        "descripcion": "Ataca con llamas pequenas."
+    },
+    "picotazo": {
+        "nombre": "Picotazo",
+        "tipo": "Volador",
+        "categoria": "fisico",
+        "poder": 35,
+        "precision": 100,
+        "pp": 35,
+        "descripcion": "Ataca con un pico afilado"
+    },
+    "pistola_agua": {
+        "nombre": "Pistola Agua",
+        "tipo": "Agua",
+        "categoria": "especial",
+        "poder": 40,
+        "precision": 100,
+        "pp": 25,
+        "descripcion": "Dispara un chorro de agua al rival"
+    },
+    "tornado": {
+        "nombre": "Tornado",
+        "tipo": "Normal",
+        "categoria": "especial",
+        "poder": 40,
+        "precision": 100,
+        "pp": 20,
+        "descripcion": "Crea un tornado para atacar"
+    },
+    "barro_bomba": {
+        "nombre": "Barro Bomba",
+        "tipo": "Tierra",
+        "categoria": "especial",
+        "poder": 65,
+        "precision": 85,
+        "pp": 10,
+        "descripcion": "Lanza lodo al rival"
+    },
+    "mordisco": {
+        "nombre": "Mordisco",
+        "tipo": "Siniestro",
+        "categoria": "fisico",
+        "poder": 60,
+        "precision": 100,
+        "pp": 25,
+        "descripcion": "Muerde con colmillos afilados"
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "treecko": [
+        {"movimiento": "placaje", "nivel": 1},
+        {"movimiento": "absorber", "nivel": 6},
+        {"movimiento": "tornado", "nivel": 8},
+        {"movimiento": "hoja_afilada", "nivel": 16}
+    ],
+    "torchic": [
+        {"movimiento": "arañazo", "nivel": 1},
+        {"movimiento": "ascuas", "nivel": 7},
+        {"movimiento": "picotazo", "nivel": 9}
+    ],
+    "mudkip": [
+        {"movimiento": "placaje", "nivel": 1},
+        {"movimiento": "pistola_agua", "nivel": 6},
+        {"movimiento": "barro_bomba", "nivel": 8}
+    ],
+    "rattata":[
+        {"movimiento":"arañazo","nivel":1},
+        {"movimiento":"mordisco","nivel":4}
+    ],
+    "pidgey":[
+        {"movimiento":"picotazo","nivel":1},
+        {"movimiento":"tornado","nivel":5}
+    ]
+}
