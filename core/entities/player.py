@@ -2,6 +2,7 @@ import pygame
 from config import *
 from core.entities.movement import manejar_movimiento
 from camera import Camera
+from core.system.dialog import DialogoBox
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, ancho, alto, ancho_mapa, alto_mapa):
@@ -15,6 +16,8 @@ class Player(pygame.sprite.Sprite):
         self.dialogo_activo = False
         self.dialogo_texto = ""
         self.dialogo_npc_id = None
+        self.dialogo_box = DialogoBox()
+        self._z_held = False
 
     def cargar_sprite(self):
         try:
@@ -37,36 +40,20 @@ class Player(pygame.sprite.Sprite):
     
     def dibujar(self, superficie, camera):
         superficie.blit(self.image, camera.apply(self.rect))
+        self.dialogo_box.dibujar(superficie)
     
-    def manejar_dialogo(self, superficie, npcs, teclas):
-        if teclas[pygame.K_z]:
-            if self.dialogo_activo:
-                self.dialogo_activo = False
+    def manejar_dialogo(self, teclas, npcs):
+        z_now = teclas[pygame.K_z]
+        if z_now and not self._z_held:
+            if self.dialogo_box.activo:
+                self.dialogo_box.cerrar()
                 pygame.time.wait(200)
             else:
-                area = self.rect.inflate(TAMAÑO_CUADRADO, TAMAÑO_CUADRADO)
+                area_interaccion = self.rect.inflate(TAMAÑO_CUADRADO, TAMAÑO_CUADRADO)
                 for npc in npcs:
-                    if area.colliderect(npc.rect):
-                        self.dialogo_texto = npc.dialog_id
-                        self.dialogo_npc_id = npc.npc_id
-                        self.dialogo_activo = True
+                    if area_interaccion.colliderect(npc.rect):
+                        metadata = {"NPC ID": getattr(npc, "npc_id", None)}
+                        self.dialogo_box.mostrar(getattr(npc, "dialog_id", "Sin dialogo"), metadata)
+                        pygame.time.wait(150)
                         break
-    
-        if self.dialogo_activo:
-            m, p = 40, 20
-            w, h = ANCHO - (m * 2), 120
-            x, y = m, ALTO - h - m
-        
-            cuadro = pygame.Surface((w, h))
-            cuadro.fill((20, 20, 40))
-            cuadro.set_alpha(230)
-            superficie.blit(cuadro, (x, y))
-            pygame.draw.rect(superficie, (255, 255, 255), (x, y, w, h), 3)
-        
-            fuente = pygame.font.Font(None, 28)
-            texto = fuente.render(self.dialogo_texto, True, (255, 255, 255))
-            superficie.blit(texto, (x + p, y + p))
-        
-            fuente_info = pygame.font.Font(None, 20)
-            info = fuente_info.render(f"NPC ID: {self.dialogo_npc_id} | Presiona Z para cerrar", True, (200, 200, 100))
-            superficie.blit(info, (x + p, y + h - 35))
+        self._z_held = z_now

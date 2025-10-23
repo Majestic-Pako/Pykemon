@@ -29,7 +29,7 @@ while jugando:
     ventana_juego.fill(BLACK)
     mapa.dibujar(ventana_juego, camera)
     player.dibujar(ventana_juego, camera)
-    player.manejar_dialogo(ventana_juego, mapa.npcs, teclas)
+    player.manejar_dialogo(teclas, mapa.npcs)
     pygame.display.flip()
     reloj.tick(FPS)
 pygame.quit() 
