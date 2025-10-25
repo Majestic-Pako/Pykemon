@@ -1,7 +1,7 @@
 import pygame
-from config import *
+from core.system.config import *
 from core.entities.movement import manejar_movimiento
-from camera import Camera
+from core.system.camera import Camera
 from core.system.dialog import DialogoBox
 
 class Player(pygame.sprite.Sprite):

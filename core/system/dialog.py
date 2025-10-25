@@ -1,5 +1,5 @@
 import pygame
-from config import *
+from core.system.config import *
 
 class DialogoBox:
     def __init__(self):

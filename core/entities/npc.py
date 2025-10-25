@@ -1,5 +1,5 @@
 import pygame
-from config import *
+from core.system.config import *
 
 class NPC(pygame.sprite.Sprite):
     def __init__(self, x, y, nombre, sprite_id,dialog_id='Sin dialogo',npc_id='?'):

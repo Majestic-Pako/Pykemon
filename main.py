@@ -3,9 +3,9 @@ import pytmx
 import sys
 from core.entities.movement import manejar_movimiento
 from core.entities.player import Player
-from map import Mapa
-from config import *
-from camera import Camera
+from core.system.map import Mapa
+from core.system.config import *
+from core.system.camera import Camera
 
 pygame.init() 
 

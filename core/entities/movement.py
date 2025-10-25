@@ -1,6 +1,6 @@
 import pygame
 from core.entities.npc import NPC
-from config import VELOCIDAD
+from core.system.config import VELOCIDAD
 def manejar_movimiento(objeto, teclas, colisiones=[], npcs=[]):
     posicion_anterior = objeto.rect.copy()
     if teclas[pygame.K_UP]:
