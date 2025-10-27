@@ -6,8 +6,8 @@ class DialogoBox:
         self.activo = False
         self.texto = ""
         self.metadata = {}
-        self.fuente_texto = pygame.font.Font(None, 28)
-        self.fuente_info = pygame.font.Font(None, 20)
+        self.fuente_texto = pygame.font.Font(None, 26)
+        self.fuente_info = pygame.font.Font(None, 18)
     
     def mostrar(self, texto, metadata=None):
         self.activo = True
@@ -28,22 +28,62 @@ class DialogoBox:
         if not self.activo:
             return
         
-        # Dimensiones y posición pa q lo modifique Thomas :u
+        # Dimensiones y posición del texto pa q lo modifique Thomas :u
         margen = 40
-        padding = 20
-        ancho = ANCHO - (margen * 2)
+        padding = 20 
+        ancho = 700 - (margen * 2)
         alto = 120
         x = margen
         y = ALTO - alto - margen
+        pixel = 4  # Tamaño de cada pixel
         
         # Cuadro de fondo
-        cuadro = pygame.Surface((ancho, alto))
-        cuadro.fill((20, 20, 40))
+        cuadro = pygame.Surface((ancho - pixel * 2, alto - pixel * 2))
+        cuadro.fill((16, 24, 40))
         cuadro.set_alpha(230)
-        superficie.blit(cuadro, (x, y))
+        superficie.blit(cuadro, (x + pixel, y + pixel))
         
-        # Borde
-        pygame.draw.rect(superficie, (255, 255, 255), (x, y, ancho, alto), 3)
+        # Colores estilo Pokemon Esmeralda
+        color_celeste_claro = (152, 216, 248)
+        color_celeste_oscuro = (88, 152, 200)
+        
+        # Borde exterior (celeste oscuro)
+        # Líneas horizontales principales
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x + pixel * 2, y, ancho - pixel * 4, pixel))
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x + pixel * 2, y + alto - pixel, ancho - pixel * 4, pixel))
+        
+        # Líneas verticales principales
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x, y + pixel * 2, pixel, alto - pixel * 4))
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x + ancho - pixel, y + pixel * 2, pixel, alto - pixel * 4))
+        
+        # Esquinas en escalera (oscuro)
+        # Superior izquierda
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x + pixel, y + pixel, pixel, pixel))
+        # Superior derecha
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x + ancho - pixel * 2, y + pixel, pixel, pixel))
+        # Inferior izquierda
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x + pixel, y + alto - pixel * 2, pixel, pixel))
+        # Inferior derecha
+        pygame.draw.rect(superficie, color_celeste_oscuro, (x + ancho - pixel * 2, y + alto - pixel * 2, pixel, pixel))
+        
+        # Borde interior brillante (celeste claro) - típico de GBA
+        # Líneas horizontales internas
+        pygame.draw.rect(superficie, color_celeste_claro, (x + pixel * 3, y + pixel, ancho - pixel * 6, pixel))
+        pygame.draw.rect(superficie, color_celeste_claro, (x + pixel * 3, y + alto - pixel * 2, ancho - pixel * 6, pixel))
+        
+        # Líneas verticales internas
+        pygame.draw.rect(superficie, color_celeste_claro, (x + pixel, y + pixel * 3, pixel, alto - pixel * 6))
+        pygame.draw.rect(superficie, color_celeste_claro, (x + ancho - pixel * 2, y + pixel * 3, pixel, alto - pixel * 6))
+        
+        # Esquinas internas (claro)
+        # Superior izquierda
+        pygame.draw.rect(superficie, color_celeste_claro, (x + pixel * 2, y + pixel * 2, pixel, pixel))
+        # Superior derecha
+        pygame.draw.rect(superficie, color_celeste_claro, (x + ancho - pixel * 3, y + pixel * 2, pixel, pixel))
+        # Inferior izquierda
+        pygame.draw.rect(superficie, color_celeste_claro, (x + pixel * 2, y + alto - pixel * 3, pixel, pixel))
+        # Inferior derecha
+        pygame.draw.rect(superficie, color_celeste_claro, (x + ancho - pixel * 3, y + alto - pixel * 3, pixel, pixel))
         
         # Texto principal / si es posible cambiar la fuente
         texto_render = self.fuente_texto.render(self.texto, True, (255, 255, 255))
