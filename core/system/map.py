@@ -26,6 +26,17 @@ class Mapa:
                     npc_id=obj.properties.get('npc_id', '?')
                     npc = NPC(obj.x, obj.y, nombre, sprite_id, dialog_id, npc_id)
                     self.npcs.append(npc)
+            self.zonas_combate = []
+            combate_layer = self.tmx_data.get_layer_by_name("Combate")
+            if combate_layer:
+                for obj in combate_layer:
+                    zona = {
+                        "rect": pygame.Rect(obj.x, obj.y, obj.width, obj.height),
+                        "encounter_rate": obj.properties.get('encounter_rate', 0.1),
+                        "pokemon_ids": obj.properties.get('pokemon_ids', '').split(','),
+                        "min_level": obj.properties.get('min_level', 2)
+                    }
+                self.zonas_combate.append(zona)
         except Exception as e:
             print("Fallo el mapa pa ...", e)
             raise

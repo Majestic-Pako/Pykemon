@@ -57,3 +57,19 @@ class Player(pygame.sprite.Sprite):
                         pygame.time.wait(150)
                         break
         self._z_held = z_now
+
+    def testear_combate(self, zonas_combate):
+        for zona in zonas_combate:
+            if self.rect.colliderect(zona["rect"]):
+                import random
+                if random.random() < zona["encounter_rate"]:
+                    pokemon = random.choice(zona["pokemon_ids"])
+                    nivel = zona["min_level"] + random.randint(0, 2)
+                    texto = f"Combate! {pokemon.strip()} salvaje (Nv.{nivel})"
+                    metadata = {"Zona": "Test", "Rate": zona["encounter_rate"]}
+                    self.dialogo_box.mostrar(texto, metadata)
+                    return True
+        return False
+    
+    def puede_moverse(self):
+        return not self.dialogo_box.activo

@@ -14,11 +14,11 @@
             "scaleInEditor": 1
         },
         "test_map.tmx": {
-            "scale": 1.01175,
-            "selectedLayer": 2,
+            "scale": 1.5,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 432.9132690882135,
-                "y": 399.80232270817896
+                "x": 432.66666666666663,
+                "y": 399.66666666666663
             }
         },
         "wall.tsx": {
@@ -37,7 +37,7 @@
         "wall.tsx"
     ],
     "project": "beta.tiled-project",
-    "property.type": "int",
+    "property.type": "string",
     "recentFiles": [
         "wall.tsx",
         "floor.tsx",

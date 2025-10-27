@@ -17,19 +17,28 @@ mapa = Mapa("assets/maps/test_map.tmx")
 player = Player(ANCHO, ALTO, mapa.ancho, mapa.alto)
 jugando = True
 camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
+frame_count = 0
 
 while jugando: 
     for evento in pygame.event.get(): 
         if evento.type == pygame.QUIT: 
             jugando = False
     teclas = pygame.key.get_pressed()
-    player.update(teclas)
-    manejar_movimiento(player, teclas, mapa.colisiones, mapa.npcs)
-    camera.update(player.rect)
+    
+    if player.puede_moverse():
+        player.update(teclas)
+        manejar_movimiento(player, teclas, mapa.colisiones, mapa.npcs)
+        camera.update(player.rect)
+    player.manejar_dialogo(teclas, mapa.npcs)
+    # testeo pa saber si entra en combate
+    frame_count += 1
+    if frame_count % 30 == 0:
+        if not player.dialogo_box.activo:
+            player.testear_combate(mapa.zonas_combate)
     ventana_juego.fill(BLACK)
     mapa.dibujar(ventana_juego, camera)
     player.dibujar(ventana_juego, camera)
-    player.manejar_dialogo(teclas, mapa.npcs)
+
     pygame.display.flip()
     reloj.tick(FPS)
 pygame.quit() 
