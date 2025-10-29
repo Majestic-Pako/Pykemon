@@ -1,4 +1,5 @@
 import pygame
+import json
 from core.system.config import *
 from core.entities.movement import manejar_movimiento
 from core.system.camera import Camera
@@ -18,6 +19,14 @@ class Player(pygame.sprite.Sprite):
         self.dialogo_npc_id = None
         self.dialogo_box = DialogoBox()
         self._z_held = False
+        self.equipo_pokemon = []
+        self.bolsa = {
+        "curacion": {},      # {"Poción": 5, "Superpoción": 2}
+        "captura": {},     # {"Pokéball": 10, "Superball": 3}
+        "debug": {}          # carameloraro 
+        }
+        with open("data/objects.json", "r", encoding="utf-8") as f:
+            self.objects_data = json.load(f)
 
     def cargar_sprite(self):
         try:
@@ -73,3 +82,95 @@ class Player(pygame.sprite.Sprite):
     
     def puede_moverse(self):
         return not self.dialogo_box.activo
+    
+    def agregar_pokemon(self, pokemon_instancia):
+        """Agrega un Pokémon al equipo o al almacenamiento"""
+        if len(self.equipo_pokemon) < 6:
+            self.equipo_pokemon.append(pokemon_instancia)
+            return True
+        else:
+            self.pokemon_storage.append(pokemon_instancia)
+            return False  # Enviado al PC
+
+    def usar_objeto(self, objeto_key, pokemon_objetivo=None):
+    # Cargar datos del objeto
+        with open("data/objects.json", "r", encoding="utf-8") as f:
+            objetos = json.load(f)
+    
+        if objeto_key not in objetos:
+            return {"exito": False, "mensaje": "Objeto no encontrado"}
+    
+        objeto_data = objetos[objeto_key]
+        tipo = objeto_data["tipo"]
+    
+    # Verificar que tenemos el objeto
+        if objeto_key not in self.bolsa[tipo] or self.bolsa[tipo][objeto_key] <= 0:
+            return {"exito": False, "mensaje": f"No tienes {objeto_data['nombre']}"}
+    
+    # Aplicar efecto según tipo
+        resultado = {"exito": False, "mensaje": ""}
+    
+        if objeto_data["efecto"] == "restaurar_ps":
+            if not pokemon_objetivo or pokemon_objetivo.esta_debilitado():
+                return {"exito": False, "mensaje": "No se puede usar en este Pokémon"}
+        
+            hp_anterior = pokemon_objetivo.hp_actual
+            pokemon_objetivo.curar(objeto_data["valor"])
+            hp_curado = pokemon_objetivo.hp_actual - hp_anterior
+        
+            resultado = {
+                "exito": True,
+                "mensaje": f"{pokemon_objetivo.nombre} recuperó {hp_curado} PS"
+            }
+    
+        elif objeto_data["efecto"] == "capturar":
+        # Esto se usará en el sistema de batalla
+            resultado = {
+                "exito": True,
+                "tasa_captura": objeto_data["valor"],
+                "mensaje": f"Usando {objeto_data['nombre']}"
+            }
+    
+        elif objeto_data["efecto"] == "subir_nivel":
+            if not pokemon_objetivo:
+                return {"exito": False, "mensaje": "Selecciona un Pokémon"}
+        
+            pokemon_objetivo.nivel += objeto_data["valor"]
+            pokemon_objetivo.stats_actuales = pokemon_objetivo.calcular_stats()
+            pokemon_objetivo.hp_actual = pokemon_objetivo.stats_actuales["hp"]
+            pokemon_objetivo.cargar_movimientos()
+        
+            resultado = {
+                "exito": True,
+                "mensaje": f"{pokemon_objetivo.nombre} subió a nivel {pokemon_objetivo.nivel}!"
+            }
+
+        if resultado["exito"]:
+            self.bolsa[tipo][objeto_key] -= 1
+            if self.bolsa[tipo][objeto_key] <= 0:
+                del self.bolsa[tipo][objeto_key]
+    
+        return resultado
+
+    def agregar_objeto(self, objeto_key, cantidad=1):
+        with open("data/objects.json", "r", encoding="utf-8") as f:
+            objetos = json.load(f)
+    
+        if objeto_key not in objetos:
+            return False
+    
+        tipo = objetos[objeto_key]["tipo"]
+    
+        if objeto_key in self.bolsa[tipo]:
+            self.bolsa[tipo][objeto_key] += cantidad
+        else:
+            self.bolsa[tipo][objeto_key] = cantidad
+    
+        return True
+
+def obtener_pokemon_activo(self):
+    """Devuelve el primer Pokémon no debilitado"""
+    for pokemon in self.equipo_pokemon:
+        if not pokemon.esta_debilitado():
+            return pokemon
+    return None
