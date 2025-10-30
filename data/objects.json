@@ -4,37 +4,34 @@
         "tipo": "curacion",
         "efecto": "restaurar_ps",
         "valor": 20,
-        "descripcion": "Restaura 20 PS de un Pokemon",
-        "precio": 300
+        "descripcion": "Restaura 20 PS de un Pokemon"
     },
     "superpocion": {
         "nombre": "Super Pocion",
         "tipo": "curacion",
         "efecto": "restaurar_ps",
         "valor": 50,
-        "descripcion": "Restaura 50 PS de un Pokemon",
-        "precio": 700
+        "descripcion": "Restaura 50 PS de un Pokemon"
     },
     "pokeball": {
         "nombre": "Poke Ball",
         "tipo": "captura",
-        "tasa_captura": 1.0,
-        "descripcion": "Dispositivo para capturar Pokemon salvajes",
-        "precio": 200
+        "efecto": "capturar",
+        "valor": 1,
+        "descripcion": "Dispositivo para capturar Pokemon salvajes"
     },
     "superball": {
         "nombre": "Super Ball",
         "tipo": "captura",
-        "tasa_captura": 1.5,
-        "descripcion": "Pokeball con mayor tasa de captura",
-        "precio": 600
+        "efecto": "capturar",
+        "valor": 1.5,
+        "descripcion": "Pokeball con mayor tasa de captura"
     },
     "caramelo_raro": {
         "nombre": "Caramelo Raro",
         "tipo": "debug",
         "efecto": "subir_nivel",
         "valor": 1,
-        "descripcion": "[DEBUG] Sube 1 nivel al Pokemon",
-        "precio": 0
+        "descripcion": "[DEBUG] Sube 1 nivel al Pokemon"
     }
 }
