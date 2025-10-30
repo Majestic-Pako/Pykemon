@@ -3,7 +3,8 @@ import json
 from core.system.config import *
 from core.entities.movement import manejar_movimiento
 from core.system.camera import Camera
-from core.system.dialog import DialogoBox
+from core.ui.dialog import DialogoBox
+from core.entities.pokemon import Pokemon
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, ancho, alto, ancho_mapa, alto_mapa):
@@ -27,6 +28,14 @@ class Player(pygame.sprite.Sprite):
         }
         with open("data/objects.json", "r", encoding="utf-8") as f:
             self.objects_data = json.load(f)
+        # Pokémon en el equipo para pruebas y objeto despues borrar
+        mudkip = Pokemon("mudkip", nivel=5)
+        treecko = Pokemon("treecko", nivel=5)
+        self.equipo_pokemon.extend([mudkip, treecko])
+        self.agregar_objeto("pocion", 5)
+        self.agregar_objeto("superpocion", 5)
+        self.agregar_objeto("pokeball", 10)
+        self.agregar_objeto("caramelo_raro", 10)
 
     def cargar_sprite(self):
         try:
@@ -114,13 +123,13 @@ class Player(pygame.sprite.Sprite):
             if not pokemon_objetivo or pokemon_objetivo.esta_debilitado():
                 return {"exito": False, "mensaje": "No se puede usar en este Pokémon"}
         
-            hp_anterior = pokemon_objetivo.hp_actual
+            ps_anterior = pokemon_objetivo.ps_actual
             pokemon_objetivo.curar(objeto_data["valor"])
-            hp_curado = pokemon_objetivo.hp_actual - hp_anterior
+            ps_curado = pokemon_objetivo.ps_actual - ps_anterior
         
             resultado = {
                 "exito": True,
-                "mensaje": f"{pokemon_objetivo.nombre} recuperó {hp_curado} PS"
+                "mensaje": f"{pokemon_objetivo.nombre} recuperó {ps_curado} PS"
             }
     
         elif objeto_data["efecto"] == "capturar":
@@ -137,7 +146,7 @@ class Player(pygame.sprite.Sprite):
         
             pokemon_objetivo.nivel += objeto_data["valor"]
             pokemon_objetivo.stats_actuales = pokemon_objetivo.calcular_stats()
-            pokemon_objetivo.hp_actual = pokemon_objetivo.stats_actuales["hp"]
+            pokemon_objetivo.ps_actual = pokemon_objetivo.stats_actuales["ps"]
             pokemon_objetivo.cargar_movimientos()
         
             resultado = {
