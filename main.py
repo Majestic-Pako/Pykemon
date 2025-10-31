@@ -9,6 +9,9 @@ from core.ui.MenuManager import MenuManager
 from core.ui.pokemon_menu import PokemonMenu
 from core.ui.bolsa_menu import BolsaMenu
 from core.ui.use_object_menu import UsarObjetoMenu
+import random
+from core.battle.battle_system import BattleSystem
+from core.entities.pokemon import Pokemon
 
 # Inicialización
 pygame.init() 
@@ -27,6 +30,9 @@ pokemon_menu = PokemonMenu(ANCHO, ALTO)
 bolsa_menu = BolsaMenu(ANCHO, ALTO)
 usar_objeto_menu = UsarObjetoMenu(ANCHO, ALTO)
 
+# Sistema de batalla
+battle_system = BattleSystem(ANCHO, ALTO)
+
 # Variables de control
 jugando = True
 frame_count = 0
@@ -41,13 +47,33 @@ while jugando:
         if evento.type == pygame.QUIT: 
             jugando = False
         
+        # Si hay batalla activa, el sistema de batalla maneja los inputs
+        if battle_system.active: 
+            battle_system.manejar_input(evento)
+            continue  # No procesar otros inputs durante batalla
+        
         if evento.type == pygame.KEYDOWN and evento.key == pygame.K_c:
             if not player.dialogo_box.activo:
                 menu.toggle()
     
     teclas = pygame.key.get_pressed()
     
-    if menu.activo:
+    # === LÓGICA DE BATALLA ===
+    if battle_system.active:
+        battle_system.actualizar()
+        
+        # Verificar si la batalla terminó
+        if not battle_system.active:
+            resultado = battle_system.battle_result
+            if resultado == 'win':
+                player.dialogo_box.mostrar("¡Ganaste la batalla!", {})
+            elif resultado == 'lose':
+                player.dialogo_box.mostrar("Tus Pokémon se debilitaron...", {})
+            elif resultado == 'escape':
+                player.dialogo_box.mostrar("¡Escapaste!", {})
+    
+    # === LÓGICA DE MENÚS ===
+    elif menu.activo:
         accion = menu.manejar_input(eventos)
         
         if accion == "POKEMON":
@@ -73,7 +99,7 @@ while jugando:
         if resultado == "VOLVER":
             menu.toggle()
         elif resultado and resultado[0] == "USAR_OBJETO":
-        # Guardar objeto y abrir menú de selección de Pokémon
+            # Guardar objeto y abrir menú de selección de Pokémon
             objeto_a_usar = resultado[1]
             item_nombre = bolsa_menu.objects_data[objeto_a_usar]["nombre"]
             usar_objeto_menu.abrir(player.equipo_pokemon, item_nombre)
@@ -90,13 +116,13 @@ while jugando:
             pokemon_objetivo = player.equipo_pokemon[pokemon_index]
         
             resultado_uso = player.usar_objeto(objeto_a_usar, pokemon_objetivo)
-
             player.dialogo_box.mostrar(resultado_uso.get("mensaje", "No pasó nada"), {})
         
             usar_objeto_menu.cerrar()
             bolsa_menu.abrir(player.bolsa)
             objeto_a_usar = None
-
+    
+    # === LÓGICA NORMAL DEL JUEGO ===
     else:
         if player.puede_moverse():
             player.update(teclas)
@@ -105,22 +131,46 @@ while jugando:
         
         player.manejar_dialogo(teclas, mapa.npcs)
         
-        # Testo de zona de combate
+        # Detección de encuentros en zonas de combate
         frame_count += 1
-        if frame_count % 30 == 0:
-            if not player.dialogo_box.activo:
-                player.testear_combate(mapa.zonas_combate)
+        if frame_count % 30 == 0:  # Checkea cada 30 frames
+            if not player.dialogo_box.activo and not battle_system.active:
+                # Verificar si está en zona de combate
+                for zona in mapa.zonas_combate:
+                    if player.rect.colliderect(zona["rect"]):
+                        # Probabilidad de encuentro según encounter_rate
+                        if random.random() < zona["encounter_rate"]:
+                            # Elegir Pokémon enemigo aleatorio de la zona
+                            pokemon_id = random.choice(zona["pokemon_ids"]).strip()
+                            nivel_enemigo = zona["min_level"] + random.randint(0, 2)
+                            
+                            # Crear Pokémon enemigo
+                            enemigo = Pokemon(pokemon_id, nivel=nivel_enemigo)
+                            
+                            # Obtener Pokémon activo del jugador
+                            pokemon_jugador = player.obtener_pokemon_activo()
+                            
+                            if pokemon_jugador:
+                                # INICIAR BATALLA
+                                battle_system.iniciar_batalla(pokemon_jugador, enemigo)
+                                break  # Solo un encuentro a la vez
     
     # === RENDERIZADO ===
     ventana_juego.fill(BLACK)
-    mapa.dibujar(ventana_juego, camera)
-    player.dibujar(ventana_juego, camera)
     
-    # UI (siempre al final)
-    menu.dibujar(ventana_juego)
-    pokemon_menu.dibujar(ventana_juego)
-    bolsa_menu.dibujar(ventana_juego)
-    usar_objeto_menu.dibujar(ventana_juego)
+    # Si hay batalla activa, solo dibujar la batalla
+    if battle_system.active:
+        battle_system.dibujar(ventana_juego)
+    else:
+        # Dibujar juego normal
+        mapa.dibujar(ventana_juego, camera)
+        player.dibujar(ventana_juego, camera)
+        
+        # UI (siempre al final)
+        menu.dibujar(ventana_juego)
+        pokemon_menu.dibujar(ventana_juego)
+        bolsa_menu.dibujar(ventana_juego)
+        usar_objeto_menu.dibujar(ventana_juego)
     
     pygame.display.flip()
     reloj.tick(FPS)

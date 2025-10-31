@@ -177,9 +177,9 @@ class Player(pygame.sprite.Sprite):
     
         return True
 
-def obtener_pokemon_activo(self):
-    """Devuelve el primer Pokémon no debilitado"""
-    for pokemon in self.equipo_pokemon:
-        if not pokemon.esta_debilitado():
-            return pokemon
-    return None
+    def obtener_pokemon_activo(self):  # ← Notar los 4 espacios al inicio
+        """Devuelve el primer Pokémon no debilitado"""
+        for pokemon in self.equipo_pokemon:
+            if not pokemon.esta_debilitado():
+                return pokemon
+        return None
