@@ -62,7 +62,7 @@
  <objectgroup id="4" name="Combate">
   <object id="19" x="258" y="192.667" width="252.667" height="128">
    <properties>
-    <property name="encounter_rate" type="float" value="1"/>
+    <property name="encounter_rate" type="float" value="0.4"/>
     <property name="min_level" type="int" value="3"/>
     <property name="pokemon_ids" value="treecko,pidgey"/>
    </properties>
