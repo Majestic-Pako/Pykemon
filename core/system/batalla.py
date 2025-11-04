@@ -2,14 +2,14 @@ import pygame
 import json
 import random
 
-# Colores básicos
-BLANCO = (255, 255, 255)
+# Configuración de colores
 NEGRO = (0, 0, 0)
-ROJO = (255, 0, 0)
-VERDE = (0, 255, 0)
-AZUL = (0, 0, 255)
-AMARILLO = (255, 255, 0)
-GRIS = (200, 200, 200)
+BLANCO = (255, 255, 255)
+GRIS_OSCURO = (50, 50, 50)
+VERDE = (0, 200, 0)
+ROJO = (220, 0, 0)
+AZUL = (0, 100, 255)
+AMARILLO = (255, 200, 0)
 
 class Batalla:
     def __init__(self, ancho, alto):
@@ -24,7 +24,7 @@ class Batalla:
         # Sistema de menús
         self.opciones_menu = ["ATACAR", "POKEMON", "BOLSA", "HUIR"]
         self.opcion_actual = 0
-        self.estado_actual = "MENSAJE"  # Puede ser: MENSAJE, MENU, ATAQUES, POKEMON, BOLSA
+        self.estado_actual = "MENSAJE"
         
         # Datos del juego
         self.bolsa = None
@@ -33,6 +33,19 @@ class Batalla:
         
         # Cargar información de objetos
         self.cargar_objetos()
+        
+        # Cargar imágenes (sprites de ejemplo)
+        self.cargar_imagenes()
+
+    def cargar_imagenes(self):
+        """Carga las imágenes/sprites para la batalla"""
+        try:
+            # Fondo de batalla
+            self.fondo_batalla = pygame.image.load('images/batalla_fondo.png').convert()
+            self.fondo_batalla = pygame.transform.scale(self.fondo_batalla, (self.ancho, self.alto))
+        except:
+            print("No se pudo cargar fondo_batalla.png - usando fondo sólido")
+            self.fondo_batalla = None
 
     def cargar_objetos(self):
         """Carga los objetos desde el archivo JSON"""
@@ -63,7 +76,6 @@ class Batalla:
         for evento in eventos:
             if evento.type == pygame.KEYDOWN:
                 
-                # Presionar ENTER para continuar mensajes
                 if self.estado_actual in ["MENSAJE", "POKEMON", "BOLSA"]:
                     if evento.key in [pygame.K_RETURN, pygame.K_z]:
                         if self.estado_actual == "MENSAJE":
@@ -72,7 +84,6 @@ class Batalla:
                         else:
                             self.estado_actual = "MENU"
 
-                # Navegar por menús
                 elif self.estado_actual == "MENU":
                     if evento.key == pygame.K_UP:
                         self.opcion_actual = (self.opcion_actual - 1) % len(self.opciones_menu)
@@ -81,7 +92,6 @@ class Batalla:
                     elif evento.key in [pygame.K_RETURN, pygame.K_z]:
                         return self.ejecutar_accion()
 
-                # Navegar por ataques
                 elif self.estado_actual == "ATAQUES":
                     if evento.key == pygame.K_UP:
                         self.opcion_actual = (self.opcion_actual - 1) % len(self.mi_pokemon.movimientos)
@@ -121,7 +131,6 @@ class Batalla:
         self.mensaje = f"{self.mi_pokemon.nombre} usó {ataque['nombre']}!"
         self.estado_actual = "MENSAJE"
 
-        # Verificar si el enemigo fue derrotado
         if self.pokemon_enemigo.esta_debilitado():
             self.mensaje = f"¡{self.pokemon_enemigo.nombre} fue derrotado!"
             return "VICTORIA"
@@ -136,7 +145,6 @@ class Batalla:
             self.mensaje = f"{self.pokemon_enemigo.nombre} atacó."
             self.estado_actual = "MENSAJE"
             
-            # Verificar si nuestro Pokémon fue derrotado
             if self.mi_pokemon.esta_debilitado():
                 self.mensaje = f"¡{self.mi_pokemon.nombre} fue derrotado!"
                 return "DERROTA"
@@ -149,116 +157,135 @@ class Batalla:
             return
 
         # Fuentes para texto
-        fuente_grande = pygame.font.SysFont("Arial", 24)
+        fuente_grande = pygame.font.SysFont("Arial", 24, bold=True)
         fuente_normal = pygame.font.SysFont("Arial", 20)
         fuente_pequena = pygame.font.SysFont("Arial", 16)
 
-        # Fondo simple
-        ventana.fill(BLANCO)
+        # Fondo
+        if self.fondo_batalla:
+            ventana.blit(self.fondo_batalla, (0, 0))
+        else:
+            ventana.fill(AZUL)
 
-        # ===== INFORMACIÓN DEL ENEMIGO =====
+        # ===== POKÉMON ENEMIGO =====
         # Caja del enemigo
-        pygame.draw.rect(ventana, GRIS, (self.ancho - 250, 50, 200, 80))
-        pygame.draw.rect(ventana, NEGRO, (self.ancho - 250, 50, 200, 80), 2)
+        pygame.draw.rect(ventana, BLANCO, (self.ancho - 280, 40, 230, 90), 0, 10)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 280, 40, 230, 90), 3, 10)
         
         # Nombre y nivel
         ventana.blit(fuente_normal.render(f"{self.pokemon_enemigo.nombre} Nv{self.pokemon_enemigo.nivel}", True, NEGRO), 
-                    (self.ancho - 230, 60))
+                    (self.ancho - 260, 50))
         
         # Barra de vida
         vida_porcentaje = self.pokemon_enemigo.ps_actual / self.pokemon_enemigo.stats_actuales["ps"]
         color_vida = VERDE if vida_porcentaje > 0.5 else AMARILLO if vida_porcentaje > 0.2 else ROJO
         
-        pygame.draw.rect(ventana, GRIS, (self.ancho - 230, 90, 150, 15))
-        pygame.draw.rect(ventana, color_vida, (self.ancho - 230, 90, int(150 * vida_porcentaje), 15))
-        pygame.draw.rect(ventana, NEGRO, (self.ancho - 230, 90, 150, 15), 1)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 260, 80, 160, 12), 0, 5)
+        pygame.draw.rect(ventana, color_vida, (self.ancho - 260, 80, int(160 * vida_porcentaje), 12), 0, 5)
 
-        # ===== INFORMACIÓN DEL JUGADOR =====
+        # Sprite Pokémon enemigo (posición ejemplo)
+        try:
+            sprite_enemigo = pygame.image.load(f'images/pokemon/{self.pokemon_enemigo.nombre.lower()}.png')
+            sprite_enemigo = pygame.transform.scale(sprite_enemigo, (120, 120))
+            ventana.blit(sprite_enemigo, (self.ancho - 400, 30))
+        except:
+            # Dibujo de placeholder si no hay sprite
+            pygame.draw.rect(ventana, AMARILLO, (self.ancho - 400, 30, 120, 120), 0, 15)
+            pygame.draw.rect(ventana, NEGRO, (self.ancho - 400, 30, 120, 120), 2, 15)
+
+        # ===== POKÉMON JUGADOR =====
         # Caja del jugador
-        pygame.draw.rect(ventana, GRIS, (50, self.alto - 150, 250, 100))
-        pygame.draw.rect(ventana, NEGRO, (50, self.alto - 150, 250, 100), 2)
+        pygame.draw.rect(ventana, BLANCO, (30, self.alto - 160, 280, 110), 0, 10)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (30, self.alto - 160, 280, 110), 3, 10)
         
         # Nombre y nivel
         ventana.blit(fuente_normal.render(f"{self.mi_pokemon.nombre} Nv{self.mi_pokemon.nivel}", True, NEGRO), 
-                    (70, self.alto - 140))
+                    (50, self.alto - 150))
         
         # Barra de vida
         vida_porcentaje = self.mi_pokemon.ps_actual / self.mi_pokemon.stats_actuales["ps"]
         color_vida = VERDE if vida_porcentaje > 0.5 else AMARILLO if vida_porcentaje > 0.2 else ROJO
         
-        pygame.draw.rect(ventana, GRIS, (70, self.alto - 110, 200, 15))
-        pygame.draw.rect(ventana, color_vida, (70, self.alto - 110, int(200 * vida_porcentaje), 15))
-        pygame.draw.rect(ventana, NEGRO, (70, self.alto - 110, 200, 15), 1)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (50, self.alto - 120, 200, 15), 0, 5)
+        pygame.draw.rect(ventana, color_vida, (50, self.alto - 120, int(200 * vida_porcentaje), 15), 0, 5)
         
         # Texto de PS
         ventana.blit(fuente_pequena.render(f"PS: {self.mi_pokemon.ps_actual}/{self.mi_pokemon.stats_actuales['ps']}", True, NEGRO), 
-                    (70, self.alto - 90))
+                    (50, self.alto - 100))
+
+        # Sprite Pokémon jugador (posición ejemplo)
+        try:
+            sprite_jugador = pygame.image.load(f'images/pokemon/{self.mi_pokemon.nombre.lower()}.png')
+            sprite_jugador = pygame.transform.scale(sprite_jugador, (100, 100))
+            ventana.blit(sprite_jugador, (200, self.alto - 250))
+        except:
+            # Dibujo de placeholder si no hay sprite
+            pygame.draw.rect(ventana, VERDE, (200, self.alto - 250, 100, 100), 0, 10)
+            pygame.draw.rect(ventana, NEGRO, (200, self.alto - 250, 100, 100), 2, 10)
 
         # ===== MENÚ PRINCIPAL =====
         if self.estado_actual == "MENU":
-            pygame.draw.rect(ventana, GRIS, (self.ancho - 200, self.alto - 150, 150, 100))
-            pygame.draw.rect(ventana, NEGRO, (self.ancho - 200, self.alto - 150, 150, 100), 2)
+            pygame.draw.rect(ventana, BLANCO, (self.ancho - 220, self.alto - 160, 180, 110), 0, 10)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 220, self.alto - 160, 180, 110), 3, 10)
             
             for i, opcion in enumerate(self.opciones_menu):
-                color = ROJO if i == self.opcion_actual else NEGRO
+                color = AZUL if i == self.opcion_actual else NEGRO
                 ventana.blit(fuente_normal.render(opcion, True, color), 
-                           (self.ancho - 180, self.alto - 130 + i * 25))
+                           (self.ancho - 190, self.alto - 140 + i * 25))
 
         # ===== MENÚ DE ATAQUES =====
         elif self.estado_actual == "ATAQUES":
-            pygame.draw.rect(ventana, GRIS, (50, self.alto - 200, 400, 150))
-            pygame.draw.rect(ventana, NEGRO, (50, self.alto - 200, 400, 150), 2)
+            pygame.draw.rect(ventana, BLANCO, (40, self.alto - 210, 400, 160), 0, 10)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (40, self.alto - 210, 400, 160), 3, 10)
             
-            ventana.blit(fuente_grande.render("Elegir ataque:", True, AZUL), (70, self.alto - 180))
+            ventana.blit(fuente_grande.render("Elegir ataque:", True, AZUL), (60, self.alto - 190))
             
             for i, ataque in enumerate(self.mi_pokemon.movimientos):
-                color = ROJO if i == self.opcion_actual else NEGRO
+                color = AZUL if i == self.opcion_actual else NEGRO
                 ventana.blit(fuente_normal.render(f"{i+1}. {ataque['nombre']}", True, color), 
-                           (70, self.alto - 150 + i * 30))
+                           (60, self.alto - 160 + i * 30))
 
         # ===== MENÚ POKÉMON =====
         elif self.estado_actual == "POKEMON":
-            pygame.draw.rect(ventana, GRIS, (100, 100, self.ancho - 200, self.alto - 200))
-            pygame.draw.rect(ventana, NEGRO, (100, 100, self.ancho - 200, self.alto - 200), 2)
+            pygame.draw.rect(ventana, BLANCO, (80, 80, self.ancho - 160, self.alto - 160), 0, 15)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (80, 80, self.ancho - 160, self.alto - 160), 3, 15)
             
-            ventana.blit(fuente_grande.render("Tu equipo Pokémon:", True, AZUL), (120, 120))
+            ventana.blit(fuente_grande.render("Tu equipo Pokémon:", True, AZUL), (100, 100))
             
-            # Mostrar cada Pokémon del equipo
-            y = 160
+            y = 140
             for i, pokemon in enumerate(self.equipo):
                 estado = "DEBILITADO" if pokemon.esta_debilitado() else f"PS: {pokemon.ps_actual}/{pokemon.stats_actuales['ps']}"
                 color_estado = ROJO if pokemon.esta_debilitado() else VERDE
                 
-                ventana.blit(fuente_normal.render(f"{i+1}. {pokemon.nombre} Nv{pokemon.nivel}", True, NEGRO), (120, y))
-                ventana.blit(fuente_pequena.render(estado, True, color_estado), (140, y + 25))
+                ventana.blit(fuente_normal.render(f"{i+1}. {pokemon.nombre} Nv{pokemon.nivel}", True, NEGRO), (100, y))
+                ventana.blit(fuente_pequena.render(estado, True, color_estado), (120, y + 25))
                 y += 60
 
         # ===== MENÚ BOLSA =====
         elif self.estado_actual == "BOLSA":
-            pygame.draw.rect(ventana, GRIS, (100, 100, self.ancho - 200, self.alto - 200))
-            pygame.draw.rect(ventana, NEGRO, (100, 100, self.ancho - 200, self.alto - 200), 2)
+            pygame.draw.rect(ventana, BLANCO, (80, 80, self.ancho - 160, self.alto - 160), 0, 15)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (80, 80, self.ancho - 160, self.alto - 160), 3, 15)
             
-            ventana.blit(fuente_grande.render("Tu bolsa:", True, AZUL), (120, 120))
+            ventana.blit(fuente_grande.render("Tu bolsa:", True, AZUL), (100, 100))
             
-            # Mostrar objetos
-            y = 160
+            y = 140
             if self.bolsa:
                 for objeto_id, cantidad in self.bolsa.items():
                     if objeto_id in self.objetos_data:
                         objeto = self.objetos_data[objeto_id]
-                        ventana.blit(fuente_normal.render(f"{objeto['nombre']} x{cantidad}", True, NEGRO), (120, y))
-                        ventana.blit(fuente_pequena.render(objeto['descripcion'], True, NEGRO), (140, y + 25))
+                        ventana.blit(fuente_normal.render(f"{objeto['nombre']} x{cantidad}", True, NEGRO), (100, y))
+                        ventana.blit(fuente_pequena.render(objeto['descripcion'], True, NEGRO), (120, y + 25))
                         y += 60
             else:
-                ventana.blit(fuente_normal.render("Bolsa vacía", True, NEGRO), (120, 160))
+                ventana.blit(fuente_normal.render("Bolsa vacía", True, NEGRO), (100, 140))
 
         # ===== MENSAJES =====
         elif self.estado_actual == "MENSAJE":
-            pygame.draw.rect(ventana, GRIS, (50, self.alto - 100, self.ancho - 100, 50))
-            pygame.draw.rect(ventana, NEGRO, (50, self.alto - 100, self.ancho - 100, 50), 2)
+            pygame.draw.rect(ventana, BLANCO, (40, self.alto - 110, self.ancho - 80, 60), 0, 10)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (40, self.alto - 110, self.ancho - 80, 60), 3, 10)
             
-            ventana.blit(fuente_normal.render(self.mensaje, True, NEGRO), (70, self.alto - 80))
-            ventana.blit(fuente_pequena.render("Presiona ENTER", True, NEGRO), (70, self.alto - 50))
+            ventana.blit(fuente_normal.render(self.mensaje, True, NEGRO), (60, self.alto - 90))
+            ventana.blit(fuente_pequena.render("Presiona ENTER", True, GRIS_OSCURO), (60, self.alto - 60))
 
     def terminar_batalla(self):
         """Termina la batalla y limpia todo"""
