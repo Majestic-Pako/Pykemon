@@ -1,6 +1,8 @@
-import pygame
+#Se importa las librerias
+import pygame 
 from core.system.config import *
 
+#NPC, declara los atributos de las cosa y la inicializacion de todo
 class NPC(pygame.sprite.Sprite):
     def __init__(self, x, y, nombre, sprite_id,dialog_id='Sin dialogo',npc_id='?'):
         super().__init__()
@@ -12,6 +14,7 @@ class NPC(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
         self.interaction_rect = self.rect.inflate(TAMAÑO_CUADRADO, TAMAÑO_CUADRADO)
     
+    #Carga el sprite y placeholder todavia no se que es
     def cargar_sprite(self):
         try:
             # Cambiar por la ruta correcta del sprite para diferentes tipos de NPCs
@@ -26,5 +29,6 @@ class NPC(pygame.sprite.Sprite):
             placeholder.fill((255, 255, 0))
             return placeholder
     
+    #Dibuja con la imagen y la camara la superficie y pasa esos parametros para la funcion
     def dibujar(self, superficie, camera):
         superficie.blit(self.image, camera.apply(self.rect))

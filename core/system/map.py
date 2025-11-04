@@ -1,8 +1,10 @@
+#Se importa las librerias
 import pytmx
 import pygame
 from pytmx.util_pygame import load_pygame
 from core.entities.npc import NPC
 
+#Se importa la clase mapa y se definine la inicializacion con toda su logica 
 class Mapa:
     def __init__(self, ruta_mapa):
         try:
@@ -40,7 +42,7 @@ class Mapa:
         except Exception as e:
             print("Fallo el mapa pa ...", e)
             raise
-    
+    #Se define la funcion dibujar pero pasando parametro como superficie y camera porque a a eso quiere referirse
     def dibujar(self, superficie, camera):
         for capa in self.mapa_tmx.visible_layers:
             if hasattr(capa, "tiles"):

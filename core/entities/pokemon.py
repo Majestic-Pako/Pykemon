@@ -65,6 +65,7 @@ class Pokemon:
             if not movset:
                 return
 
+            #Condiciones logicas dependiendo el movimiento
             # extraer la lista de movimientos según la estructura encontrada
             if isinstance(movset, dict):
                 if "movimientos" in movset and isinstance(movset["movimientos"], list):
@@ -87,10 +88,18 @@ class Pokemon:
             with open("data/movements.json", "r", encoding="utf-8") as f:
                 todos_movimientos = json.load(f)
 
+             
             for mov_data in mov_list:
                 # soportar varias formas de nombrar los campos
                 nivel_req = mov_data.get("nivel") or mov_data.get("level") or 0
-                nombre_mov = mov_data.get("nombre") or mov_data.get("move") or mov_data.get("nombre_mov") or ""
+                #Se modifico esta parte de abajo:
+                nombre_mov=(
+                    mov_data.get("movimiento")
+                    or mov_data.get("nombre")
+                    or mov_data.get("move")
+                    or mov_data.get("nombre_mov")
+                    or ""
+                )
 
                 if nivel_req > self.nivel:
                     continue
@@ -112,15 +121,17 @@ class Pokemon:
         except FileNotFoundError:
             # archivos faltantes: no romper la ejecución, dejar lista vacía
             return
-    
+    #Calcula experiencia
     def calcular_exp_requerida(self):
         return int(100 * (self.nivel ** 1.5))
     
+    #Gana experiencia
     def ganar_exp(self, cantidad):
         self.exp += cantidad
         if self.exp >= self.exp_siguiente_nivel:
             self.subir_nivel()
     
+    #Sube nivel
     def subir_nivel(self):
         self.nivel += 1
         self.exp = 0
@@ -128,9 +139,9 @@ class Pokemon:
         self.stats_actuales = self.calcular_stats()
         self.ps_actual = self.stats_actuales["ps"]  
         self.cargar_movimientos()
-    
+    #Cura al pokemon obviamente
     def curar(self, cantidad):
         self.ps_actual = min(self.ps_actual + cantidad, self.stats_actuales["ps"]) 
-    
+    #Funcion que solo aparece si es menor a cero, osea la cantidad de vida que tiene el pokemon
     def esta_debilitado(self):
         return self.ps_actual <= 0

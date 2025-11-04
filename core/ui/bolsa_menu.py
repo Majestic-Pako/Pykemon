@@ -1,7 +1,9 @@
+#Se importa las librerias
 import pygame
 import json
 from core.system.config import *
 
+#Se define la clase
 class BolsaMenu:
     def __init__(self, ancho_pantalla, alto_pantalla):
         self.ancho_pantalla = ancho_pantalla
@@ -43,7 +45,7 @@ class BolsaMenu:
         # Cargar datos de objetos
         with open("data/objects.json", "r", encoding="utf-8") as f:
             self.objects_data = json.load(f)
-    
+    #Funcion abrir
     def abrir(self, bolsa):
         """Abre el menú con la bolsa del jugador"""
         self.activo = True
@@ -51,10 +53,10 @@ class BolsaMenu:
         self.item_seleccionado = 0
         self._actualizar_items_lista()
         self._ultima_tecla = pygame.time.get_ticks()
-    
+    #Funcion cerrar
     def cerrar(self):
         self.activo = False
-    
+    #Funcion actualizacion de items
     def _actualizar_items_lista(self):
         self.items_lista = []
         for categoria in ["curacion", "captura", "debug"]:
@@ -63,7 +65,7 @@ class BolsaMenu:
                     if cantidad > 0:
                         nombre = self.objects_data[item_key]["nombre"]
                         self.items_lista.append((item_key, nombre, cantidad))
-    
+    #Funcion de dibujar borde de pokemones
     def _dibujar_borde_pokemon(self, superficie, x, y, ancho, alto):
         p = self.pixel
         
@@ -173,6 +175,7 @@ class BolsaMenu:
         
         tiempo_actual = pygame.time.get_ticks()
         
+        #Bucle y condiciones logicas
         for evento in eventos:
             if evento.type == pygame.KEYDOWN:
                 if tiempo_actual - self._ultima_tecla < self.KEY_DELAY:

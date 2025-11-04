@@ -1,3 +1,4 @@
+#Se importan todas las librerias y archivos, carpetas, clases
 import pygame 
 import sys
 from core.entities.movement import manejar_movimiento
@@ -9,7 +10,7 @@ from core.ui.MenuManager import MenuManager
 from core.ui.pokemon_menu import PokemonMenu
 from core.ui.bolsa_menu import BolsaMenu
 from core.ui.use_object_menu import UsarObjetoMenu
-
+from core.system.batalla import Batalla #Se agrego esta linea de codigo
 # Inicialización
 pygame.init() 
 ventana_juego = pygame.display.set_mode((ANCHO, ALTO)) 
@@ -20,6 +21,8 @@ reloj = pygame.time.Clock()
 mapa = Mapa("assets/maps/test_map.tmx")
 player = Player(ANCHO, ALTO, mapa.ancho, mapa.alto)
 camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
+# Instancia de la batalla
+batalla = Batalla(ANCHO, ALTO) #Se agrego esta linea de codigo
 
 # Menús
 menu = MenuManager(ANCHO, ALTO)
@@ -31,7 +34,7 @@ usar_objeto_menu = UsarObjetoMenu(ANCHO, ALTO)
 jugando = True
 frame_count = 0
 objeto_a_usar = None
-
+resultado = None
 # Game Loop
 while jugando:
     eventos = pygame.event.get()
@@ -44,9 +47,31 @@ while jugando:
         if evento.type == pygame.KEYDOWN and evento.key == pygame.K_c:
             if not player.dialogo_box.activo:
                 menu.toggle()
+        #Se agrego estas lineas de codigo de logica
+        if evento.type == pygame.USEREVENT + 1:
+            if batalla.activo:
+                batalla.turno_enemigo()
     
     teclas = pygame.key.get_pressed()
-    
+    #Se agrego estas lineas de codigo de logica de la batalla
+    if batalla.activo:
+        resultado = batalla.procesar_eventos(eventos)
+
+    # Si el jugador decide atacar, huir o gana
+    if resultado == "HUIR":
+        print("Has huido del combate.")
+        batalla.terminar_batalla()
+
+    elif resultado == "VICTORIA":
+        print("Has ganado la batalla.")
+        batalla.terminar_batalla()
+
+    # Evento del turno enemigo (programado dentro de batalla.py)
+    for evento in eventos:
+        if evento.type == pygame.USEREVENT + 1:
+            batalla.turno_enemigo()
+
+
     if menu.activo:
         accion = menu.manejar_input(eventos)
         
@@ -108,9 +133,30 @@ while jugando:
         # Testo de zona de combate
         frame_count += 1
         if frame_count % 30 == 0:
-            if not player.dialogo_box.activo:
-                player.testear_combate(mapa.zonas_combate)
-    
+            #Esto estaba antes y se agrego lo siguiente
+
+            #if not player.dialogo_box.activo:
+                #player.testear_combate(mapa.zonas_combate)
+
+            #Lo siguiente:
+             if not batalla.activo and player.testear_combate(mapa.zonas_combate):
+                    # Importar Pokemon si no está importado
+                    from core.entities.pokemon import Pokemon
+                    import random
+
+                     # Pokémones disponibles según tu JSON
+                    pokemons_disponibles = ["treecko", "torchic", "mudkip", "rattata", "pidgey"]
+                    nombre_enemigo = random.choice(pokemons_disponibles)
+                    pokemon_enemigo = Pokemon(nombre_enemigo, nivel=5)
+                    
+                   # Iniciar batalla con el primer Pokémon del jugador
+                    if len(player.equipo_pokemon) > 0:
+                        batalla.empezar_batalla(
+                        player.equipo_pokemon[0],
+                        pokemon_enemigo,
+                        player.bolsa
+            )
+
     # === RENDERIZADO ===
     ventana_juego.fill(BLACK)
     mapa.dibujar(ventana_juego, camera)
@@ -121,9 +167,9 @@ while jugando:
     pokemon_menu.dibujar(ventana_juego)
     bolsa_menu.dibujar(ventana_juego)
     usar_objeto_menu.dibujar(ventana_juego)
-    
+    batalla.dibujar(ventana_juego)#Se agrego esta linea de codigo
     pygame.display.flip()
     reloj.tick(FPS)
-
+    continue
 pygame.quit() 
 sys.exit()

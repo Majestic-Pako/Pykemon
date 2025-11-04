@@ -1,3 +1,4 @@
+#Importa las librerias neesarias
 import pygame
 import json
 from core.system.config import *
@@ -6,6 +7,7 @@ from core.system.camera import Camera
 from core.ui.dialog import DialogoBox
 from core.entities.pokemon import Pokemon
 
+#Se declara la clase player con sus atributos
 class Player(pygame.sprite.Sprite):
     def __init__(self, ancho, alto, ancho_mapa, alto_mapa):
         super().__init__()
@@ -22,10 +24,12 @@ class Player(pygame.sprite.Sprite):
         self._z_held = False
         self.equipo_pokemon = []
         self.bolsa = {
+        #Se hace un array con posiciones con estos nombres
         "curacion": {},      # {"Poción": 5, "Superpoción": 2}
         "captura": {},     # {"Pokéball": 10, "Superball": 3}
         "debug": {}          # carameloraro 
         }
+        #Se abre el objeto si toca tal tecla
         with open("data/objects.json", "r", encoding="utf-8") as f:
             self.objects_data = json.load(f)
         # Pokémon en el equipo para pruebas y objeto despues borrar
@@ -48,18 +52,20 @@ class Player(pygame.sprite.Sprite):
             placeholder = pygame.Surface((TAMAÑO_CUADRADO, TAMAÑO_CUADRADO))
             placeholder.fill(RED)
             return placeholder
-    
+    #Esta funcion limita con los parametros las teclas y se actualiza mediante el juego
     def update(self, teclas):
         self.limitar_limites()
     
+    #Marca los limites del mapa y el tamaño
     def limitar_limites(self):
         self.rect.x = max(0, min(self.rect.x, self.ancho_mapa - TAMAÑO_CUADRADO))
         self.rect.y = max(0, min(self.rect.y, self.alto_mapa - TAMAÑO_CUADRADO))
     
+    #Dibuja
     def dibujar(self, superficie, camera):
         superficie.blit(self.image, camera.apply(self.rect))
         self.dialogo_box.dibujar(superficie)
-    
+    #Maneja el dialogo con ciertas teclas
     def manejar_dialogo(self, teclas, npcs):
         z_now = teclas[pygame.K_z]
         if z_now and not self._z_held:
@@ -75,7 +81,7 @@ class Player(pygame.sprite.Sprite):
                         pygame.time.wait(150)
                         break
         self._z_held = z_now
-
+    #Testea el combate en acercamiento del personaje cuando se mueve
     def testear_combate(self, zonas_combate):
         for zona in zonas_combate:
             if self.rect.colliderect(zona["rect"]):
@@ -88,10 +94,11 @@ class Player(pygame.sprite.Sprite):
                     self.dialogo_box.mostrar(texto, metadata)
                     return True
         return False
-    
+    #Solo puede moverse si el dialogo no esta activo
     def puede_moverse(self):
         return not self.dialogo_box.activo
     
+    #Agrega un poquemon de otra instancia
     def agregar_pokemon(self, pokemon_instancia):
         """Agrega un Pokémon al equipo o al almacenamiento"""
         if len(self.equipo_pokemon) < 6:
@@ -101,6 +108,7 @@ class Player(pygame.sprite.Sprite):
             self.pokemon_storage.append(pokemon_instancia)
             return False  # Enviado al PC
 
+    #Usa el objeto si se abrio tal cosa con una tecla
     def usar_objeto(self, objeto_key, pokemon_objetivo=None):
     # Cargar datos del objeto
         with open("data/objects.json", "r", encoding="utf-8") as f:
@@ -139,7 +147,7 @@ class Player(pygame.sprite.Sprite):
                 "tasa_captura": objeto_data["valor"],
                 "mensaje": f"Usando {objeto_data['nombre']}"
             }
-    
+         #Condiciones logicas    
         elif objeto_data["efecto"] == "subir_nivel":
             if not pokemon_objetivo:
                 return {"exito": False, "mensaje": "Selecciona un Pokémon"}
@@ -160,7 +168,7 @@ class Player(pygame.sprite.Sprite):
                 del self.bolsa[tipo][objeto_key]
     
         return resultado
-
+      #Funcion de agregar objeto si cumple lo anterior 
     def agregar_objeto(self, objeto_key, cantidad=1):
         with open("data/objects.json", "r", encoding="utf-8") as f:
             objetos = json.load(f)
@@ -176,7 +184,7 @@ class Player(pygame.sprite.Sprite):
             self.bolsa[tipo][objeto_key] = cantidad
     
         return True
-
+#Obtiene el pokemon
 def obtener_pokemon_activo(self):
     """Devuelve el primer Pokémon no debilitado"""
     for pokemon in self.equipo_pokemon:
