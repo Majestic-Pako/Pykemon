@@ -86,9 +86,21 @@ class Batalla:
 
                 elif self.estado_actual == "MENU":
                     if evento.key == pygame.K_UP:
-                        self.opcion_actual = (self.opcion_actual - 1) % len(self.opciones_menu)
+                        # Mover hacia arriba (0->0, 1->1, 2->0, 3->1)
+                        if self.opcion_actual >= 2:
+                            self.opcion_actual -= 2
                     elif evento.key == pygame.K_DOWN:
-                        self.opcion_actual = (self.opcion_actual + 1) % len(self.opciones_menu)
+                        # Mover hacia abajo (0->2, 1->3, 2->2, 3->3)
+                        if self.opcion_actual <= 1:
+                            self.opcion_actual += 2
+                    elif evento.key == pygame.K_LEFT:
+                        # Mover hacia la izquierda (0->0, 1->0, 2->2, 3->2)
+                        if self.opcion_actual % 2 == 1:
+                            self.opcion_actual -= 1
+                    elif evento.key == pygame.K_RIGHT:
+                        # Mover hacia la derecha (0->1, 1->1, 2->3, 3->3)
+                        if self.opcion_actual % 2 == 0:
+                            self.opcion_actual += 1
                     elif evento.key in [pygame.K_RETURN, pygame.K_z]:
                         return self.ejecutar_accion()
 
@@ -99,6 +111,10 @@ class Batalla:
                         self.opcion_actual = (self.opcion_actual + 1) % len(self.mi_pokemon.movimientos)
                     elif evento.key in [pygame.K_RETURN, pygame.K_z]:
                         return self.usar_ataque()
+                    elif evento.key == pygame.K_ESCAPE:
+                        # Volver al menú principal
+                        self.estado_actual = "MENU"
+                        self.opcion_actual = 0
 
         return None
 
@@ -168,82 +184,107 @@ class Batalla:
             ventana.fill(AZUL)
 
         # ===== POKÉMON ENEMIGO =====
-        # Caja del enemigo
-        pygame.draw.rect(ventana, BLANCO, (self.ancho - 280, 40, 230, 90), 0, 10)
-        pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 280, 40, 230, 90), 3, 10)
+        # Sprite Pokémon enemigo (lado derecho)
+        try:
+            sprite_enemigo = pygame.image.load(f'images/pokemon/{self.pokemon_enemigo.nombre.lower()}.png')
+            sprite_enemigo = pygame.transform.scale(sprite_enemigo, (120, 120))
+            ventana.blit(sprite_enemigo, (self.ancho - 180, 60))
+        except:
+            # Dibujo de placeholder si no hay sprite
+            pygame.draw.rect(ventana, AMARILLO, (self.ancho - 180, 60, 120, 120), 0, 15)
+            pygame.draw.rect(ventana, NEGRO, (self.ancho - 180, 60, 120, 120), 2, 15)
+        
+        # Caja del enemigo (al lado izquierdo del sprite)
+        pygame.draw.rect(ventana, BLANCO, (self.ancho - 440, 60, 230, 90), 0, 10)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 440, 60, 230, 90), 3, 10)
         
         # Nombre y nivel
         ventana.blit(fuente_normal.render(f"{self.pokemon_enemigo.nombre} Nv{self.pokemon_enemigo.nivel}", True, NEGRO), 
-                    (self.ancho - 260, 50))
+                    (self.ancho - 420, 70))
         
         # Barra de vida
         vida_porcentaje = self.pokemon_enemigo.ps_actual / self.pokemon_enemigo.stats_actuales["ps"]
         color_vida = VERDE if vida_porcentaje > 0.5 else AMARILLO if vida_porcentaje > 0.2 else ROJO
         
-        pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 260, 80, 160, 12), 0, 5)
-        pygame.draw.rect(ventana, color_vida, (self.ancho - 260, 80, int(160 * vida_porcentaje), 12), 0, 5)
-
-        # Sprite Pokémon enemigo (posición ejemplo)
-        try:
-            sprite_enemigo = pygame.image.load(f'images/pokemon/{self.pokemon_enemigo.nombre.lower()}.png')
-            sprite_enemigo = pygame.transform.scale(sprite_enemigo, (120, 120))
-            ventana.blit(sprite_enemigo, (self.ancho - 400, 30))
-        except:
-            # Dibujo de placeholder si no hay sprite
-            pygame.draw.rect(ventana, AMARILLO, (self.ancho - 400, 30, 120, 120), 0, 15)
-            pygame.draw.rect(ventana, NEGRO, (self.ancho - 400, 30, 120, 120), 2, 15)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 420, 100, 160, 12), 0, 5)
+        pygame.draw.rect(ventana, color_vida, (self.ancho - 420, 100, int(160 * vida_porcentaje), 12), 0, 5)
 
         # ===== POKÉMON JUGADOR =====
-        # Caja del jugador
-        pygame.draw.rect(ventana, BLANCO, (30, self.alto - 160, 280, 110), 0, 10)
-        pygame.draw.rect(ventana, GRIS_OSCURO, (30, self.alto - 160, 280, 110), 3, 10)
+        # Sprite Pokémon jugador (lado izquierdo) - bajado un poco
+        try:
+            sprite_jugador = pygame.image.load(f'images/pokemon/{self.mi_pokemon.nombre.lower()}.png')
+            sprite_jugador = pygame.transform.scale(sprite_jugador, (120, 120))
+            ventana.blit(sprite_jugador, (60, 230))
+        except:
+            # Dibujo de placeholder si no hay sprite
+            pygame.draw.rect(ventana, VERDE, (60, 230, 120, 120), 0, 10)
+            pygame.draw.rect(ventana, NEGRO, (60, 230, 120, 120), 2, 10)
+        
+        # Caja del jugador (al lado derecho del sprite) - bajada y movida a la derecha
+        pygame.draw.rect(ventana, BLANCO, (220, 230, 280, 110), 0, 10)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (220, 230, 280, 110), 3, 10)
         
         # Nombre y nivel
         ventana.blit(fuente_normal.render(f"{self.mi_pokemon.nombre} Nv{self.mi_pokemon.nivel}", True, NEGRO), 
-                    (50, self.alto - 150))
+                    (240, 240))
         
         # Barra de vida
         vida_porcentaje = self.mi_pokemon.ps_actual / self.mi_pokemon.stats_actuales["ps"]
         color_vida = VERDE if vida_porcentaje > 0.5 else AMARILLO if vida_porcentaje > 0.2 else ROJO
         
-        pygame.draw.rect(ventana, GRIS_OSCURO, (50, self.alto - 120, 200, 15), 0, 5)
-        pygame.draw.rect(ventana, color_vida, (50, self.alto - 120, int(200 * vida_porcentaje), 15), 0, 5)
+        pygame.draw.rect(ventana, GRIS_OSCURO, (240, 270, 200, 15), 0, 5)
+        pygame.draw.rect(ventana, color_vida, (240, 270, int(200 * vida_porcentaje), 15), 0, 5)
         
         # Texto de PS
         ventana.blit(fuente_pequena.render(f"PS: {self.mi_pokemon.ps_actual}/{self.mi_pokemon.stats_actuales['ps']}", True, NEGRO), 
-                    (50, self.alto - 100))
-
-        # Sprite Pokémon jugador (posición ejemplo)
-        try:
-            sprite_jugador = pygame.image.load(f'images/pokemon/{self.mi_pokemon.nombre.lower()}.png')
-            sprite_jugador = pygame.transform.scale(sprite_jugador, (100, 100))
-            ventana.blit(sprite_jugador, (200, self.alto - 250))
-        except:
-            # Dibujo de placeholder si no hay sprite
-            pygame.draw.rect(ventana, VERDE, (200, self.alto - 250, 100, 100), 0, 10)
-            pygame.draw.rect(ventana, NEGRO, (200, self.alto - 250, 100, 100), 2, 10)
+                    (240, 290))
 
         # ===== MENÚ PRINCIPAL =====
         if self.estado_actual == "MENU":
-            pygame.draw.rect(ventana, BLANCO, (self.ancho - 220, self.alto - 160, 180, 110), 0, 10)
-            pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 220, self.alto - 160, 180, 110), 3, 10)
+            # Menú estilo grid 2x2
+            menu_ancho = 340
+            menu_alto = 100
+            menu_x = self.ancho - menu_ancho - 40
+            menu_y = self.alto - menu_alto - 50
+            
+            # Rectángulo principal del menú
+            pygame.draw.rect(ventana, BLANCO, (menu_x, menu_y, menu_ancho, menu_alto), 0, 10)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (menu_x, menu_y, menu_ancho, menu_alto), 3, 10)
+            
+            # Línea vertical divisoria
+            pygame.draw.line(ventana, GRIS_OSCURO, 
+                           (menu_x + menu_ancho // 2, menu_y), 
+                           (menu_x + menu_ancho // 2, menu_y + menu_alto), 3)
+            
+            # Línea horizontal divisoria
+            pygame.draw.line(ventana, GRIS_OSCURO, 
+                           (menu_x, menu_y + menu_alto // 2), 
+                           (menu_x + menu_ancho, menu_y + menu_alto // 2), 3)
+            
+            # Posiciones de las opciones en grid 2x2
+            posiciones = [
+                (menu_x + 30, menu_y + 15),  # ATACAR (arriba izquierda)
+                (menu_x + menu_ancho // 2 + 30, menu_y + 15),  # POKEMON (arriba derecha)
+                (menu_x + 30, menu_y + menu_alto // 2 + 15),  # BOLSA (abajo izquierda)
+                (menu_x + menu_ancho // 2 + 30, menu_y + menu_alto // 2 + 15)  # HUIR (abajo derecha)
+            ]
             
             for i, opcion in enumerate(self.opciones_menu):
                 color = AZUL if i == self.opcion_actual else NEGRO
-                ventana.blit(fuente_normal.render(opcion, True, color), 
-                           (self.ancho - 190, self.alto - 140 + i * 25))
+                ventana.blit(fuente_normal.render(opcion, True, color), posiciones[i])
 
         # ===== MENÚ DE ATAQUES =====
         elif self.estado_actual == "ATAQUES":
-            pygame.draw.rect(ventana, BLANCO, (40, self.alto - 210, 400, 160), 0, 10)
-            pygame.draw.rect(ventana, GRIS_OSCURO, (40, self.alto - 210, 400, 160), 3, 10)
+            # Menú de ataques ocupa el espacio del diálogo + menú
+            pygame.draw.rect(ventana, BLANCO, (40, self.alto - 160, self.ancho - 80, 110), 0, 10)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (40, self.alto - 160, self.ancho - 80, 110), 3, 10)
             
-            ventana.blit(fuente_grande.render("Elegir ataque:", True, AZUL), (60, self.alto - 190))
+            ventana.blit(fuente_grande.render("Elegir ataque:", True, AZUL), (60, self.alto - 140))
             
             for i, ataque in enumerate(self.mi_pokemon.movimientos):
                 color = AZUL if i == self.opcion_actual else NEGRO
                 ventana.blit(fuente_normal.render(f"{i+1}. {ataque['nombre']}", True, color), 
-                           (60, self.alto - 160 + i * 30))
+                           (60, self.alto - 110 + i * 30))
 
         # ===== MENÚ POKÉMON =====
         elif self.estado_actual == "POKEMON":
@@ -279,13 +320,27 @@ class Batalla:
             else:
                 ventana.blit(fuente_normal.render("Bolsa vacía", True, NEGRO), (100, 140))
 
-        # ===== MENSAJES =====
-        elif self.estado_actual == "MENSAJE":
-            pygame.draw.rect(ventana, BLANCO, (40, self.alto - 110, self.ancho - 80, 60), 0, 10)
-            pygame.draw.rect(ventana, GRIS_OSCURO, (40, self.alto - 110, self.ancho - 80, 60), 3, 10)
+        # ===== CUADRO DE DIÁLOGO PERMANENTE =====
+        # Solo mostrar si NO estamos en el menú de ataques
+        if self.estado_actual != "ATAQUES":
+            # Caja de diálogo siempre visible (lado izquierdo inferior)
+            dialogo_ancho = self.ancho - 450
+            dialogo_alto = 100
+            dialogo_x = 40
+            dialogo_y = self.alto - dialogo_alto - 50
             
-            ventana.blit(fuente_normal.render(self.mensaje, True, NEGRO), (60, self.alto - 90))
-            ventana.blit(fuente_pequena.render("Presiona ENTER", True, GRIS_OSCURO), (60, self.alto - 60))
+            pygame.draw.rect(ventana, BLANCO, (dialogo_x, dialogo_y, dialogo_ancho, dialogo_alto), 0, 10)
+            pygame.draw.rect(ventana, GRIS_OSCURO, (dialogo_x, dialogo_y, dialogo_ancho, dialogo_alto), 3, 10)
+            
+            # Mostrar mensaje actual
+            if self.mensaje:
+                ventana.blit(fuente_normal.render(self.mensaje, True, NEGRO), (dialogo_x + 20, dialogo_y + 30))
+            
+            # Indicador de acción según estado
+            if self.estado_actual == "MENSAJE":
+                ventana.blit(fuente_pequena.render("Presiona ENTER", True, GRIS_OSCURO), (dialogo_x + 20, dialogo_y + 60))
+            elif self.estado_actual == "MENU":
+                ventana.blit(fuente_pequena.render("Elige una acción", True, GRIS_OSCURO), (dialogo_x + 20, dialogo_y + 60))
 
     def terminar_batalla(self):
         """Termina la batalla y limpia todo"""
