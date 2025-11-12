@@ -53,9 +53,16 @@ class Batalla:
         try:
             self.fondo_batalla = pygame.image.load('assets/images/batalla_fondo.png').convert()
             self.fondo_batalla = pygame.transform.scale(self.fondo_batalla, (self.ancho, self.alto))
+            print("✓ Fondo de batalla cargado")
         except:
-            print("No se pudo cargar fondo_batalla.png - usando fondo sólido")
-            self.fondo_batalla = None
+            try:
+                # Intenta buscar en images/ directamente
+                self.fondo_batalla = pygame.image.load('images/batalla_fondo.png').convert()
+                self.fondo_batalla = pygame.transform.scale(self.fondo_batalla, (self.ancho, self.alto))
+                print("✓ Fondo de batalla cargado desde images/")
+            except Exception as e:
+                print(f"No se pudo cargar fondo_batalla.png: {e}")
+                self.fondo_batalla = None
 
     def empezar_batalla(self, jugador, pokemon_enemigo):
         """Inicia una nueva batalla recibiendo el jugador completo"""
@@ -332,11 +339,16 @@ class Batalla:
                 else:
                     offset_x_enemigo = int(-60 * (2 - progreso * 2))
 
+        # SPRITE DEL ENEMIGO (BACK)
         try:
-            sprite_enemigo = pygame.image.load(f'images/pokemon/{self.pokemon_enemigo.nombre.lower()}.png')
+            ruta_enemigo = f'assets/images/pokemon/front/{self.pokemon_enemigo.nombre.lower()}.png'
+            print(f"Intentando cargar enemigo: {ruta_enemigo}")
+            sprite_enemigo = pygame.image.load(ruta_enemigo)
             sprite_enemigo = pygame.transform.scale(sprite_enemigo, (120, 120))
             ventana.blit(sprite_enemigo, (self.ancho - 180 + offset_x_enemigo, 60 + offset_y_enemigo))
-        except:
+            print("✓ Sprite enemigo cargado correctamente")
+        except Exception as e:
+            print(f"✗ Error cargando sprite enemigo: {e}")
             pygame.draw.rect(ventana, AMARILLO, (self.ancho - 180 + offset_x_enemigo, 60 + offset_y_enemigo, 120, 120), 0, 15)
             pygame.draw.rect(ventana, NEGRO, (self.ancho - 180 + offset_x_enemigo, 60 + offset_y_enemigo, 120, 120), 2, 15)
         
@@ -352,11 +364,16 @@ class Batalla:
         pygame.draw.rect(ventana, GRIS_OSCURO, (self.ancho - 420, 100, 160, 12), 0, 5)
         pygame.draw.rect(ventana, color_vida, (self.ancho - 420, 100, int(160 * vida_porcentaje), 12), 0, 5)
 
+        # SPRITE DEL JUGADOR (FRONT)
         try:
-            sprite_jugador = pygame.image.load(f'images/pokemon/{self.mi_pokemon.nombre.lower()}.png')
+            ruta_jugador = f'assets/images/pokemon/back/{self.mi_pokemon.nombre.lower()}.png'
+            print(f"Intentando cargar jugador: {ruta_jugador}")
+            sprite_jugador = pygame.image.load(ruta_jugador)
             sprite_jugador = pygame.transform.scale(sprite_jugador, (120, 120))
             ventana.blit(sprite_jugador, (60 + offset_x_jugador, 230 + offset_y_jugador))
-        except:
+            print("✓ Sprite jugador cargado correctamente")
+        except Exception as e:
+            print(f"✗ Error cargando sprite jugador: {e}")
             pygame.draw.rect(ventana, VERDE, (60 + offset_x_jugador, 230 + offset_y_jugador, 120, 120), 0, 10)
             pygame.draw.rect(ventana, NEGRO, (60 + offset_x_jugador, 230 + offset_y_jugador, 120, 120), 2, 10)
         
