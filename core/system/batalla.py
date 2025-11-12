@@ -342,7 +342,7 @@ class Batalla:
         # SPRITE DEL ENEMIGO (BACK)
         try:
             ruta_enemigo = f'assets/images/pokemon/front/{self.pokemon_enemigo.nombre.lower()}.png'
-            print(f"Intentando cargar enemigo: {ruta_enemigo}")
+            #print(f"Intentando cargar enemigo: {ruta_enemigo}")
             sprite_enemigo = pygame.image.load(ruta_enemigo)
             sprite_enemigo = pygame.transform.scale(sprite_enemigo, (120, 120))
             ventana.blit(sprite_enemigo, (self.ancho - 180 + offset_x_enemigo, 60 + offset_y_enemigo))
@@ -367,11 +367,11 @@ class Batalla:
         # SPRITE DEL JUGADOR (FRONT)
         try:
             ruta_jugador = f'assets/images/pokemon/back/{self.mi_pokemon.nombre.lower()}.png'
-            print(f"Intentando cargar jugador: {ruta_jugador}")
+            #print(f"Intentando cargar jugador: {ruta_jugador}")
             sprite_jugador = pygame.image.load(ruta_jugador)
             sprite_jugador = pygame.transform.scale(sprite_jugador, (120, 120))
             ventana.blit(sprite_jugador, (60 + offset_x_jugador, 230 + offset_y_jugador))
-            print("✓ Sprite jugador cargado correctamente")
+            #print("✓ Sprite jugador cargado correctamente")
         except Exception as e:
             print(f"✗ Error cargando sprite jugador: {e}")
             pygame.draw.rect(ventana, VERDE, (60 + offset_x_jugador, 230 + offset_y_jugador, 120, 120), 0, 10)
