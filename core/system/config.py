@@ -1,8 +1,10 @@
 ## Configuraciones del juego tiene variables globales ##
 
 #  Dimensiones de la pantalla
-ANCHO = 700
-ALTO = 550
+ANCHO = 800
+ALTO = 640
+
+ESCALA_JUEGO = 2
 
 # Dimensiones de Jugador
 TAMAÑO_CUADRADO = 32

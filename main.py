@@ -10,24 +10,20 @@ from core.ui.pokemon_menu import PokemonMenu
 from core.ui.bolsa_menu import BolsaMenu
 from core.ui.use_object_menu import UsarObjetoMenu
 
-# Inicialización
 pygame.init() 
 ventana_juego = pygame.display.set_mode((ANCHO, ALTO)) 
 pygame.display.set_caption("Pykemon")
 reloj = pygame.time.Clock()
 
-# Componentes del juego
-mapa = Mapa("assets/maps/test_map.tmx")
+mapa = Mapa("assets/maps/pueblo_inicial.tmx")
 player = Player(ANCHO, ALTO, mapa.ancho, mapa.alto)
 camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
 
-# Menús
 menu = MenuManager(ANCHO, ALTO)
 pokemon_menu = PokemonMenu(ANCHO, ALTO)
 bolsa_menu = BolsaMenu(ANCHO, ALTO)
 usar_objeto_menu = UsarObjetoMenu(ANCHO, ALTO)
 
-# Variables de control
 jugando = True
 frame_count = 0
 objeto_a_usar = None
