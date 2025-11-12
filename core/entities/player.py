@@ -184,10 +184,11 @@ class Player(pygame.sprite.Sprite):
             self.bolsa[tipo][objeto_key] = cantidad
     
         return True
-#Obtiene el pokemon
-def obtener_pokemon_activo(self):
-    """Devuelve el primer Pokémon no debilitado"""
-    for pokemon in self.equipo_pokemon:
-        if not pokemon.esta_debilitado():
-            return pokemon
-    return None
+    
+    #Obtiene el pokemon activo (CORREGIDO: ahora está DENTRO de la clase)
+    def obtener_pokemon_activo(self):
+        """Devuelve el primer Pokémon no debilitado"""
+        for pokemon in self.equipo_pokemon:
+            if not pokemon.esta_debilitado():
+                return pokemon
+        return None
