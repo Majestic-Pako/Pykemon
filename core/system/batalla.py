@@ -324,7 +324,7 @@ class Batalla:
         # Solo mostrar si NO estamos en el menú de ataques
         if self.estado_actual != "ATAQUES":
             # Caja de diálogo siempre visible (lado izquierdo inferior)
-            dialogo_ancho = self.ancho - 450
+            dialogo_ancho = self.ancho - 420  # CAMBIADO: más ancho para que quepa el texto
             dialogo_alto = 100
             dialogo_x = 40
             dialogo_y = self.alto - dialogo_alto - 50
