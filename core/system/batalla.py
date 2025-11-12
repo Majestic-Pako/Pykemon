@@ -53,13 +53,13 @@ class Batalla:
         try:
             self.fondo_batalla = pygame.image.load('assets/images/batalla_fondo.png').convert()
             self.fondo_batalla = pygame.transform.scale(self.fondo_batalla, (self.ancho, self.alto))
-            print("✓ Fondo de batalla cargado")
+            #print("✓ Fondo de batalla cargado")
         except:
             try:
                 # Intenta buscar en images/ directamente
                 self.fondo_batalla = pygame.image.load('images/batalla_fondo.png').convert()
                 self.fondo_batalla = pygame.transform.scale(self.fondo_batalla, (self.ancho, self.alto))
-                print("✓ Fondo de batalla cargado desde images/")
+                #print("✓ Fondo de batalla cargado desde images/")
             except Exception as e:
                 print(f"No se pudo cargar fondo_batalla.png: {e}")
                 self.fondo_batalla = None
@@ -346,7 +346,7 @@ class Batalla:
             sprite_enemigo = pygame.image.load(ruta_enemigo)
             sprite_enemigo = pygame.transform.scale(sprite_enemigo, (120, 120))
             ventana.blit(sprite_enemigo, (self.ancho - 180 + offset_x_enemigo, 60 + offset_y_enemigo))
-            print("✓ Sprite enemigo cargado correctamente")
+            #print("✓ Sprite enemigo cargado correctamente")
         except Exception as e:
             print(f"✗ Error cargando sprite enemigo: {e}")
             pygame.draw.rect(ventana, AMARILLO, (self.ancho - 180 + offset_x_enemigo, 60 + offset_y_enemigo, 120, 120), 0, 15)
