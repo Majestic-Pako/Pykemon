@@ -323,8 +323,12 @@ class Batalla:
         # ===== CUADRO DE DIÁLOGO PERMANENTE =====
         # Solo mostrar si NO estamos en el menú de ataques
         if self.estado_actual != "ATAQUES":
-            # Caja de diálogo siempre visible (lado izquierdo inferior)
-            dialogo_ancho = self.ancho - 420  # CAMBIADO: más ancho para que quepa el texto
+            # Configuración del menú para calcular posiciones
+            menu_ancho = 340
+            menu_x = self.ancho - menu_ancho - 40
+            
+            # Caja de diálogo alineada con el menú
+            dialogo_ancho = menu_x - 50  # Termina justo antes del menú
             dialogo_alto = 100
             dialogo_x = 40
             dialogo_y = self.alto - dialogo_alto - 50
