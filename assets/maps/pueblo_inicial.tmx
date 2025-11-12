@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="34">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="35">
  <tileset firstgid="1" source="../tilesets/exterior.tsx"/>
  <tileset firstgid="105" source="../tilesets/estructuras.tsx"/>
  <tileset firstgid="361" source="../tilesets/arboles.tsx"/>
@@ -102,4 +102,13 @@
 390,391,392,390,391,392,390,391,392,390,391,392,390,391,392,390,391,392,390,391,392,390,391,392,390,391,392,390,391,392
 </data>
  </layer>
+ <objectgroup id="6" name="Portal">
+  <object id="34" x="336.333" y="0.333333" width="46" height="31.3333">
+   <properties>
+    <property name="target_map" value="bosque.tmx"/>
+    <property name="target_x" type="int" value="528"/>
+    <property name="target_y" type="int" value="592"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

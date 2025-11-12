@@ -65,6 +65,28 @@ class Mapa:
                     print(f"Cargadas {len(self.zonas_combate)} zonas de combate")
             except ValueError:
                 print("Capa 'Combate' no encontrada")
+            self.portales = []
+            try:
+                portal_layer = self.tmx_data.get_layer_by_name("Portal")
+                if portal_layer:
+                    from core.system.config import ESCALA_JUEGO
+                for obj in portal_layer:
+                    portal = {
+                        "rect": pygame.Rect(
+                            obj.x * ESCALA_JUEGO, 
+                            obj.y * ESCALA_JUEGO, 
+                            obj.width * ESCALA_JUEGO, 
+                            obj.height * ESCALA_JUEGO
+                        ),
+                        "target_map": obj.properties.get('target_map', ''),
+                    # Multiplicar las coordenadas destino por ESCALA_JUEGO
+                        "target_x": int(obj.properties.get('target_x', 0)) * ESCALA_JUEGO,
+                        "target_y": int(obj.properties.get('target_y', 0)) * ESCALA_JUEGO
+                    }
+                    self.portales.append(portal)
+                print(f"Cargados {len(self.portales)} portales")
+            except ValueError:
+                print("Capa 'Portal' no encontrada")
         except Exception as e:
             print("Fallo el mapa pa ...", e)
             raise
@@ -82,8 +104,8 @@ class Mapa:
                     # Escalar tile (usa NEAREST para pixel art sin blur)
                         tile_escalado = pygame.transform.scale(
                             imagen,
-                            (self.mapa_tmx.tilewidth * ESCALA_JUEGO, 
-                            self.mapa_tmx.tileheight * ESCALA_JUEGO)
+                            (self.mapa_tmx.tilewidth* ESCALA_JUEGO, 
+                            self.mapa_tmx.tileheight* ESCALA_JUEGO)
                         )
                         superficie.blit(tile_escalado, (px - camera.x, py - camera.y))
     

@@ -9,6 +9,7 @@ from core.ui.MenuManager import MenuManager
 from core.ui.pokemon_menu import PokemonMenu
 from core.ui.bolsa_menu import BolsaMenu
 from core.ui.use_object_menu import UsarObjetoMenu
+from core.system.portal_manager import PortalManager
 
 pygame.init() 
 ventana_juego = pygame.display.set_mode((ANCHO, ALTO)) 
@@ -23,6 +24,7 @@ menu = MenuManager(ANCHO, ALTO)
 pokemon_menu = PokemonMenu(ANCHO, ALTO)
 bolsa_menu = BolsaMenu(ANCHO, ALTO)
 usar_objeto_menu = UsarObjetoMenu(ANCHO, ALTO)
+portal_manager = PortalManager()
 
 jugando = True
 frame_count = 0
@@ -99,6 +101,13 @@ while jugando:
             manejar_movimiento(player, teclas, mapa.colisiones, mapa.npcs)
             camera.update(player.rect)
         
+            portal_info = portal_manager.verificar_portal(player.rect, mapa.portales)
+            if portal_info:
+                portal_manager.cambiar_mapa(
+                    portal_info["target_map"],
+                    portal_info["target_x"],
+                    portal_info["target_y"]
+                )
         player.manejar_dialogo(teclas, mapa.npcs)
         
         # Testo de zona de combate
@@ -106,6 +115,22 @@ while jugando:
         if frame_count % 30 == 0:
             if not player.dialogo_box.activo:
                 player.testear_combate(mapa.zonas_combate)
+        
+        if portal_manager.transicion_activa:
+            destino = portal_manager.obtener_destino()
+        
+        # Cargar nuevo mapa
+            mapa = Mapa(f"assets/maps/{destino['mapa']}")
+        
+        # Reposicionar jugador
+            player.rect.center = (destino['x'], destino['y'])
+        
+        # Actualizar dimensiones del mapa para límites
+            player.ancho_mapa = mapa.ancho
+            player.alto_mapa = mapa.alto
+
+            camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
+            camera.update(player.rect)
     
     # === RENDERIZADO ===
     ventana_juego.fill(BLACK)
