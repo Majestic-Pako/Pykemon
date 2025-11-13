@@ -44,7 +44,7 @@ class Player(pygame.sprite.Sprite):
 
     def cargar_sprite(self):
         try:
-            sprite = pygame.image.load("assets/sprites/player/aca_la_imagen.png")
+            sprite = pygame.image.load("assets/sprites/npcs/npc1.png")
             sprite = pygame.transform.scale(sprite, (TAMAÑO_CUADRADO, TAMAÑO_CUADRADO))
             return sprite
         except FileNotFoundError:

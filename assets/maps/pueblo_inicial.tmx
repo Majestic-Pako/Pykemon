@@ -66,7 +66,12 @@
  </objectgroup>
  <objectgroup id="5" name="NPC">
   <object id="24" x="384.667" y="96.3333" width="16" height="20"/>
-  <object id="25" x="47.6667" y="288" width="23.3333" height="25.3333"/>
+  <object id="25" x="47.6667" y="288" width="23.3333" height="25.3333">
+   <properties>
+    <property name="npc_id" value="Agustin"/>
+    <property name="sprite_id" value="Agustin"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="2" name="estructuras" width="30" height="30">
   <data encoding="csv">
@@ -108,13 +113,6 @@
     <property name="target_map" value="bosque.tmx"/>
     <property name="target_x" type="int" value="528"/>
     <property name="target_y" type="int" value="592"/>
-   </properties>
-  </object>
-  <object id="37" x="112.364" y="199.455" width="15.4545" height="16.9091">
-   <properties>
-    <property name="target_map" value="casa.tmx"/>
-    <property name="target_x" type="int" value="128"/>
-    <property name="target_y" type="int" value="112"/>
    </properties>
   </object>
  </objectgroup>
