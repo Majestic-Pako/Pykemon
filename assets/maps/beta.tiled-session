@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "pueblo_inicial.tmx",
+    "activeFile": "bosque.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -25,20 +25,28 @@
             "scaleInDock": 2,
             "scaleInEditor": 1
         },
+        "bosque.tmx": {
+            "scale": 1.2646875,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 79.0709167284408,
+                "y": 335.65604151223135
+            }
+        },
         "floor.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "pueblo_inicial.tmx": {
             "expandedObjectLayers": [
-                5,
-                4
+                4,
+                5
             ],
-            "scale": 3,
+            "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 394,
-                "y": 291.8333333333333
+                "x": 240,
+                "y": 196.33333333333337
             }
         },
         "test_map.tmx": {
@@ -63,19 +71,17 @@
     "map.width": 30,
     "openFiles": [
         "pueblo_inicial.tmx",
-        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/exterior.tsx",
-        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/estructuras.tsx",
-        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/bosque.tsx",
-        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/arboles.tsx"
+        "bosque.tmx"
     ],
     "project": "beta.tiled-project",
     "property.type": "string",
     "recentFiles": [
+        "pueblo_inicial.tmx",
+        "bosque.tmx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/arboles.tsx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/bosque.tsx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/estructuras.tsx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/exterior.tsx",
-        "pueblo_inicial.tmx",
         "test_map.tmx",
         "wall.tsx",
         "floor.tsx"

@@ -42,8 +42,11 @@ class PokemonMenu:
         self.fuente_pequeña = pygame.font.Font(None, 16)
         
         self.pixel = 4
-        
         self.tamaño_sprite = 48
+        
+        # Cache de sprites
+        self.sprites_cargados = {}
+        self.sprites_fallidos = set()
         
         self._ultima_tecla = 0
         self.KEY_DELAY = 150
@@ -56,6 +59,28 @@ class PokemonMenu:
     
     def cerrar(self):
         self.activo = False
+    
+    def _cargar_sprite_pokemon(self, pokemon):
+        """Carga el sprite del Pokémon desde assets/pokemon/front con cache"""
+        ruta = f"assets/pokemon/front/{pokemon.id}.png"
+        
+        # Verificar cache
+        if ruta in self.sprites_cargados:
+            return self.sprites_cargados[ruta]
+        
+        # Si ya falló, retornar None
+        if ruta in self.sprites_fallidos:
+            return None
+        
+        try:
+            sprite = pygame.image.load(ruta)
+            # Escalar al tamaño del slot
+            sprite = pygame.transform.scale(sprite, (self.tamaño_sprite - 8, self.tamaño_sprite - 8))
+            self.sprites_cargados[ruta] = sprite
+            return sprite
+        except:
+            self.sprites_fallidos.add(ruta)
+            return None
     
     def _dibujar_borde_pokemon_gba(self, superficie, x, y, ancho, alto):
         p = self.pixel
@@ -122,6 +147,7 @@ class PokemonMenu:
             pygame.draw.rect(superficie, self.color_seleccion, rect_sel)
             pygame.draw.rect(superficie, self.color_seleccion_borde, rect_sel, 2)
         
+        # Sprite del Pokémon
         sprite_x = x + 6
         sprite_y = y + (slot_alto - self.tamaño_sprite) // 2
         
@@ -132,35 +158,48 @@ class PokemonMenu:
         pygame.draw.rect(superficie, self.color_borde_claro, 
                         (sprite_x + 2, sprite_y + 2, self.tamaño_sprite - 4, self.tamaño_sprite - 4), 1)
         
-        sprite_placeholder = pygame.Surface((self.tamaño_sprite - 8, self.tamaño_sprite - 8))
-        sprite_placeholder.fill((140, 140, 140))
-        superficie.blit(sprite_placeholder, (sprite_x + 4, sprite_y + 4))
+        # Intentar cargar sprite real
+        sprite = self._cargar_sprite_pokemon(pokemon)
+        if sprite:
+            superficie.blit(sprite, (sprite_x + 4, sprite_y + 4))
+        else:
+            # Placeholder si no se encuentra el sprite
+            sprite_placeholder = pygame.Surface((self.tamaño_sprite - 8, self.tamaño_sprite - 8))
+            sprite_placeholder.fill((140, 140, 140))
+            superficie.blit(sprite_placeholder, (sprite_x + 4, sprite_y + 4))
         
-        # Información compacta
+        # Información del Pokémon
         info_x = sprite_x + self.tamaño_sprite + 10
-        info_y = y + 6
+        info_y = y + 8
         
+        # Nombre del Pokémon
         nombre_texto = f"{pokemon.nombre}"
         nombre_render = self.fuente_nombre.render(nombre_texto, False, self.color_texto)
         superficie.blit(nombre_render, (info_x, info_y))
         
+        # Nivel (a la derecha del nombre)
         nivel_texto = f"Nv.{pokemon.nivel}"
         nivel_render = self.fuente_info.render(nivel_texto, False, self.color_texto_claro)
-        superficie.blit(nivel_render, (info_x, info_y + 18))
+        nivel_x = info_x + nombre_render.get_width() + 10
+        superficie.blit(nivel_render, (nivel_x, info_y + 2))
         
+        # Barra de PS (más abajo)
         barra_x = info_x
-        barra_y = info_y + 40
+        barra_y = info_y + 30
         barra_ancho = 180
         barra_alto = 8
         
+        # Label "PS" encima de la barra
         label_ps = self.fuente_pequeña.render("PS", False, self.color_texto_claro)
         superficie.blit(label_ps, (barra_x, barra_y - 14))
         
+        # Dibujar barra de fondo
         pygame.draw.rect(superficie, self.color_ps_fondo, 
                         (barra_x, barra_y, barra_ancho, barra_alto))
         pygame.draw.rect(superficie, self.color_ps_borde, 
                         (barra_x, barra_y, barra_ancho, barra_alto), 1)
         
+        # Dibujar barra de PS actual
         ps_porcentaje = pokemon.ps_actual / pokemon.stats_actuales['ps']
         barra_ps_ancho = int((barra_ancho - 2) * ps_porcentaje)
         color_ps = self._obtener_color_ps(pokemon.ps_actual, pokemon.stats_actuales['ps'])
@@ -169,6 +208,7 @@ class PokemonMenu:
             pygame.draw.rect(superficie, color_ps, 
                             (barra_x + 1, barra_y + 1, barra_ps_ancho, barra_alto - 2))
         
+        # Texto numérico de PS (a la derecha de la barra)
         ps_texto = f"{pokemon.ps_actual}/{pokemon.stats_actuales['ps']}"
         ps_render = self.fuente_pequeña.render(ps_texto, False, self.color_texto_claro)
         superficie.blit(ps_render, (barra_x + barra_ancho + 5, barra_y - 2))

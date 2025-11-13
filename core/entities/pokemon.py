@@ -2,20 +2,30 @@ import pygame
 import json
 
 class Pokemon:
-    def __init__(self, nombre_pokemon, nivel=5, pokemon_data=None):
-        # Cargar datos base si no se proveen
-        if pokemon_data is None:
-            with open("data/pokemon.json", "r", encoding="utf-8") as f:
-                todos_pokemon = json.load(f)
-                # Buscar en el diccionario usando la key
-                pokemon_data = todos_pokemon.get(nombre_pokemon.lower())
-                if not pokemon_data:
-                    raise ValueError(f"Pokémon '{nombre_pokemon}' no encontrado en el JSON")
+    def __init__(self, nombre_pokemon, nivel=5):
+        """
+        Crea un Pokémon desde su ID (key del JSON)
+        Args:
+            nombre_pokemon: ID del pokemon (ej: "treecko", "mudkip")
+            nivel: Nivel inicial del pokemon
+        """
+        # Normalizar nombre a minúsculas para búsqueda
+        pokemon_id = nombre_pokemon.lower().strip()
+        
+        # Cargar datos del Pokémon
+        with open("data/pokemon.json", "r", encoding="utf-8") as f:
+            todos_pokemon = json.load(f)
+        
+        if pokemon_id not in todos_pokemon:
+            raise ValueError(f"Pokémon '{nombre_pokemon}' no encontrado en pokemon.json")
+        
+        pokemon_data = todos_pokemon[pokemon_id]
         
         # Datos permanentes
-        self.nombre = pokemon_data["nombre"]
+        self.id = pokemon_id  # Guardar ID para cargar sprites
+        self.nombre = pokemon_data["nombre"]  # Nombre con mayúscula
         
-        # Adaptar tipos (tu JSON usa tipo1/tipo2)
+        # Tipos
         self.tipos = [pokemon_data["tipo1"]]
         if pokemon_data["tipo2"]:
             self.tipos.append(pokemon_data["tipo2"])
@@ -23,11 +33,11 @@ class Pokemon:
         self.sprite = pokemon_data["sprite_id"]
         self.descripcion = pokemon_data["descripcion"]
         
-        # Datos que escalan con nivel
+        # Stats y nivel
         self.nivel = nivel
-        self.stats_base = pokemon_data["stats"]  # Tu JSON usa "stats" no "estadisticas"
+        self.stats_base = pokemon_data["stats"]
         self.stats_actuales = self.calcular_stats()
-        self.ps_actual = self.stats_actuales["ps"]  # Tu JSON usa "ps" 
+        self.ps_actual = self.stats_actuales["ps"]
         
         # Movimientos
         self.movimientos = []
@@ -38,110 +48,117 @@ class Pokemon:
         self.exp_siguiente_nivel = self.calcular_exp_requerida()
     
     def calcular_stats(self):
-        """Fórmula simple para calcular stats según nivel"""
+        """Calcula stats según nivel usando fórmula simple"""
         stats = {}
         for stat, base in self.stats_base.items():
-            # Fórmula básica: stat = base + (nivel * factor)
-            factor = 0.5 if stat == "ps" else 0.3  
+            factor = 0.5 if stat == "ps" else 0.3
             stats[stat] = int(base + (self.nivel * base * factor))
         return stats
     
     def cargar_movimientos(self):
+        """
+        Carga movimientos desde movset.json según el nivel actual
+        Formato esperado en movset.json:
+        {
+            "treecko": [
+                {"movimiento": "placaje", "nivel": 1},
+                {"movimiento": "absorber", "nivel": 6}
+            ]
+        }
+        """
         try:
+            # Cargar moveset del Pokémon
             with open("data/movset.json", "r", encoding="utf-8") as f:
                 movsets = json.load(f)
-
-            # localizar movset para este Pokémon (soporta dict o lista)
-            movset = None
-            if isinstance(movsets, dict):
-                movset = movsets.get(self.nombre.lower()) or movsets.get(self.nombre)
-            elif isinstance(movsets, list):
-                movset = next(
-                    (m for m in movsets
-                        if (m.get("pokemon","").lower() == self.nombre.lower()) or (m.get("pokemon","") == self.nombre)),
-                    None
-                )
-
+            
+            # Buscar moveset usando el ID
+            movset = movsets.get(self.id)
+            
             if not movset:
+                print(f"⚠️ No se encontró moveset para '{self.id}' en movset.json")
                 return
-
-            #Condiciones logicas dependiendo el movimiento
-            # extraer la lista de movimientos según la estructura encontrada
-            if isinstance(movset, dict):
-                if "movimientos" in movset and isinstance(movset["movimientos"], list):
-                    mov_list = movset["movimientos"]
-                elif "moves" in movset and isinstance(movset["moves"], list):
-                    mov_list = movset["moves"]
-                elif isinstance(movset.get("movimientos"), list):
-                    mov_list = movset.get("movimientos")
-                else:
-                    # si movset mismo ya es una lista de movimientos
-                    mov_list = movset if isinstance(movset, list) else []
-            elif isinstance(movset, list):
-                mov_list = movset
-            else:
-                return
-
-            if not mov_list:
-                return
-
+            
+            # Cargar datos de movimientos
             with open("data/movements.json", "r", encoding="utf-8") as f:
                 todos_movimientos = json.load(f)
-
-             
-            for mov_data in mov_list:
-                # soportar varias formas de nombrar los campos
-                nivel_req = mov_data.get("nivel") or mov_data.get("level") or 0
-                #Se modifico esta parte de abajo:
-                nombre_mov=(
-                    mov_data.get("movimiento")
-                    or mov_data.get("nombre")
-                    or mov_data.get("move")
-                    or mov_data.get("nombre_mov")
-                    or ""
-                )
-
+            
+            # Filtrar movimientos según nivel y agregar hasta 4
+            self.movimientos = []
+            for mov_data in movset:
+                nivel_req = mov_data.get("nivel", 0)
+                
+                # Solo movimientos que el Pokémon puede aprender en su nivel actual
                 if nivel_req > self.nivel:
                     continue
-
-                mov_info = None
-                if isinstance(todos_movimientos, dict):
-                    mov_info = todos_movimientos.get(nombre_mov.lower()) or todos_movimientos.get(nombre_mov)
-                else:
-                    mov_info = next(
-                        (m for m in todos_movimientos
-                            if (m.get("nombre","").lower() == nombre_mov.lower()) or (m.get("nombre","") == nombre_mov)),
-                        None
-                    )
-
+                
+                nombre_mov = mov_data.get("movimiento", "").lower()
+                
+                # Buscar info del movimiento
+                mov_info = todos_movimientos.get(nombre_mov)
+                
                 if mov_info:
-                    self.movimientos.append(mov_info)
+                    # ✅ CREAR UNA COPIA del movimiento con pp_actual
+                    movimiento_instancia = mov_info.copy()
+                    movimiento_instancia["pp_actual"] = mov_info["pp"]  # Inicializar PP actual
+                    self.movimientos.append(movimiento_instancia)
+                
+                # Máximo 4 movimientos
                 if len(self.movimientos) >= 4:
                     break
-        except FileNotFoundError:
-            # archivos faltantes: no romper la ejecución, dejar lista vacía
-            return
-    #Calcula experiencia
+            
+            if self.movimientos:
+                print(f"[OK] {self.nombre} aprendió: {[m['nombre'] for m in self.movimientos]}")
+            else:
+                print(f"[WARN] {self.nombre} no tiene movimientos disponibles en nivel {self.nivel}")
+         
+        except FileNotFoundError as e:
+            print(f"[WARN] Error cargando movimientos: {e}")
+        except Exception as e:
+            print(f"[ERROR] Error en cargar_movimientos: {e}")
+    
     def calcular_exp_requerida(self):
+        """Calcula experiencia necesaria para subir de nivel"""
         return int(100 * (self.nivel ** 1.5))
     
-    #Gana experiencia
     def ganar_exp(self, cantidad):
+        """Agrega experiencia y sube de nivel si corresponde"""
         self.exp += cantidad
         if self.exp >= self.exp_siguiente_nivel:
             self.subir_nivel()
     
-    #Sube nivel
     def subir_nivel(self):
+        """Sube un nivel y recalcula stats"""
         self.nivel += 1
         self.exp = 0
         self.exp_siguiente_nivel = self.calcular_exp_requerida()
         self.stats_actuales = self.calcular_stats()
-        self.ps_actual = self.stats_actuales["ps"]  
+        self.ps_actual = self.stats_actuales["ps"]
+        
+        # Recargar movimientos por si aprende nuevos
         self.cargar_movimientos()
-    #Cura al pokemon obviamente
+        print(f"[OK] {self.nombre} subió al nivel {self.nivel}!")
+    
     def curar(self, cantidad):
-        self.ps_actual = min(self.ps_actual + cantidad, self.stats_actuales["ps"]) 
-    #Funcion que solo aparece si es menor a cero, osea la cantidad de vida que tiene el pokemon
+        """Restaura PS sin exceder el máximo"""
+        self.ps_actual = min(self.ps_actual + cantidad, self.stats_actuales["ps"])
+        return self.ps_actual  # Retorna PS actual para feedback
+    
     def esta_debilitado(self):
+        """Verifica si el Pokémon está fuera de combate"""
         return self.ps_actual <= 0
+    
+    def restaurar_pp(self):
+        """Restaura todos los PP de los movimientos al máximo"""
+        for movimiento in self.movimientos:
+            movimiento["pp_actual"] = movimiento["pp"]
+    
+    def obtener_ruta_sprite(self, es_enemigo=True):
+        """
+        Genera la ruta del sprite según si es enemigo o jugador
+        Args:
+            es_enemigo: True = back/ (vista espalda), False = front/ (vista frente)
+        Returns:
+            String con la ruta del sprite
+        """
+        carpeta = "back" if es_enemigo else "front"
+        return f"assets/pokemon/{carpeta}/{self.id}.png"

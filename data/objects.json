@@ -17,14 +17,14 @@
         "nombre": "Poke Ball",
         "tipo": "captura",
         "efecto": "capturar",
-        "valor": 1,
+        "valor": 0.25,
         "descripcion": "Dispositivo para capturar Pokemon salvajes"
     },
     "superball": {
         "nombre": "Super Ball",
         "tipo": "captura",
         "efecto": "capturar",
-        "valor": 1.5,
+        "valor": 0.45,
         "descripcion": "Pokeball con mayor tasa de captura"
     },
     "caramelo_raro": {

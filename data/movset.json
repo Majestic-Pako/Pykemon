@@ -1,7 +1,7 @@
 {
     "treecko": [
         {"movimiento": "placaje", "nivel": 1},
-        {"movimiento": "absorber", "nivel": 6},
+        {"movimiento": "absorber", "nivel": 4},
         {"movimiento": "tornado", "nivel": 8},
         {"movimiento": "hoja_afilada", "nivel": 16}
     ],
@@ -12,7 +12,7 @@
     ],
     "mudkip": [
         {"movimiento": "placaje", "nivel": 1},
-        {"movimiento": "pistola_agua", "nivel": 6},
+        {"movimiento": "pistola_agua", "nivel": 4},
         {"movimiento": "barro_bomba", "nivel": 8}
     ],
     "rattata":[

@@ -1,4 +1,4 @@
-#Importa las librerias neesarias
+#Importa las librerias necesarias
 import pygame
 import json
 from core.system.config import *
@@ -148,7 +148,8 @@ class Player(pygame.sprite.Sprite):
         """Cura todos los Pokémon del equipo (para Centros Pokémon)"""
         for pokemon in self.equipo_pokemon:
             pokemon.ps_actual = pokemon.stats_actuales["ps"]
-            # Aquí podrías restaurar PP de movimientos si lo implementas
+            # ✅ RESTAURAR PP DE LOS MOVIMIENTOS
+            pokemon.restaurar_pp()
         return True
     
     # ========== MÉTODOS DE BOLSA ==========
@@ -254,7 +255,7 @@ class Player(pygame.sprite.Sprite):
                 "tasa_captura": objeto_data["valor"],
                 "mensaje": f"Usando {objeto_data['nombre']}"
             }
-         #Condiciones logicas    
+        #Condiciones logicas    
         elif objeto_data["efecto"] == "subir_nivel":
             if not pokemon_objetivo:
                 return {"exito": False, "mensaje": "Selecciona un Pokémon"}
@@ -276,27 +277,3 @@ class Player(pygame.sprite.Sprite):
                 del self.bolsa[tipo][objeto_key]
     
         return resultado
-      #Funcion de agregar objeto si cumple lo anterior 
-    def agregar_objeto(self, objeto_key, cantidad=1):
-        with open("data/objects.json", "r", encoding="utf-8") as f:
-            objetos = json.load(f)
-    
-        if objeto_key not in objetos:
-            return False
-    
-        tipo = objetos[objeto_key]["tipo"]
-    
-        if objeto_key in self.bolsa[tipo]:
-            self.bolsa[tipo][objeto_key] += cantidad
-        else:
-            self.bolsa[tipo][objeto_key] = cantidad
-    
-        return True
-    
-    #Obtiene el pokemon activo (CORREGIDO: ahora está DENTRO de la clase)
-    def obtener_pokemon_activo(self):
-        """Devuelve el primer Pokémon no debilitado"""
-        for pokemon in self.equipo_pokemon:
-            if not pokemon.esta_debilitado():
-                return pokemon
-        return None
