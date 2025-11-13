@@ -6,15 +6,20 @@ class DialogoBox:
         self.activo = False
         self.texto = ""
         self.metadata = {}
-        self.fuente_texto = pygame.font.Font(None, 26)
-        self.fuente_info = pygame.font.Font(None, 18)
         
-        # Colores estilo Pokémon
-        self.color_fondo = (16, 24, 40)
-        self.color_borde_oscuro = (88, 152, 200)
-        self.color_borde_claro = (152, 216, 248)
-        self.color_texto = (255, 255, 255)
-        self.color_info = (200, 200, 100)
+        self.fuente_texto = pygame.font.Font(None, 24)  
+        self.fuente_info = pygame.font.Font(None, 16)
+        
+        self.color_fondo = (248, 248, 248)  
+        self.color_fondo_sombra = (200, 200, 192)  
+        
+        self.color_borde_externo = (0, 0, 0)  
+        self.color_borde_claro = (248, 248, 248)  
+        self.color_borde_medio = (104, 104, 104)  
+        self.color_borde_oscuro = (56, 56, 56)  
+        
+        self.color_texto = (80, 80, 80)  
+        self.color_info = (112, 112, 112) 
     
     def mostrar(self, texto, metadata=None):
         self.activo = True
@@ -31,22 +36,24 @@ class DialogoBox:
             self.cerrar()
         return self.activo
     
-    def _dibujar_borde_pokemon(self, superficie, x, y, ancho, alto, pixel):
+    def _dibujar_borde_pokemon_gba(self, superficie, x, y, ancho, alto, pixel):
         fondo = pygame.Surface((ancho - pixel * 4, alto - pixel * 4))
         fondo.fill(self.color_fondo)
-        fondo.set_alpha(240)
         superficie.blit(fondo, (x + pixel * 2, y + pixel * 2))
         
-        rects_oscuro = [
-            (x + pixel * 2, y, ancho - pixel * 4, pixel),  # Top
-            (x + pixel * 2, y + alto - pixel, ancho - pixel * 4, pixel),  # Bottom
-            (x, y + pixel * 2, pixel, alto - pixel * 4),  # Left
-            (x + ancho - pixel, y + pixel * 2, pixel, alto - pixel * 4),  # Right
-        ]
-        for rect in rects_oscuro:
-            pygame.draw.rect(superficie, self.color_borde_oscuro, rect)
+        sombra = pygame.Surface((ancho - pixel * 6, alto - pixel * 6))
+        sombra.fill(self.color_fondo_sombra)
+        sombra.set_alpha(30)
+        superficie.blit(sombra, (x + pixel * 4, y + pixel * 4))
         
-        # Esquinas exteriores (oscuro)
+        # === BORDE EXTERNO (Negro) ===
+        # Líneas horizontales
+        pygame.draw.rect(superficie, self.color_borde_externo, (x + pixel * 2, y, ancho - pixel * 4, pixel))
+        pygame.draw.rect(superficie, self.color_borde_externo, (x + pixel * 2, y + alto - pixel, ancho - pixel * 4, pixel))
+        # Líneas verticales
+        pygame.draw.rect(superficie, self.color_borde_externo, (x, y + pixel * 2, pixel, alto - pixel * 4))
+        pygame.draw.rect(superficie, self.color_borde_externo, (x + ancho - pixel, y + pixel * 2, pixel, alto - pixel * 4))
+        # Esquinas externas
         esquinas_ext = [
             (x + pixel, y + pixel),
             (x + ancho - pixel * 2, y + pixel),
@@ -54,19 +61,22 @@ class DialogoBox:
             (x + ancho - pixel * 2, y + alto - pixel * 2)
         ]
         for ex, ey in esquinas_ext:
-            pygame.draw.rect(superficie, self.color_borde_oscuro, (ex, ey, pixel, pixel))
+            pygame.draw.rect(superficie, self.color_borde_externo, (ex, ey, pixel, pixel))
         
-        # Borde interior (claro) - Más grueso para que se note mejor
-        rects_claro = [
-            (x + pixel * 3, y + pixel, ancho - pixel * 6, pixel),  # Top
-            (x + pixel * 3, y + alto - pixel * 2, ancho - pixel * 6, pixel),  # Bottom
-            (x + pixel, y + pixel * 3, pixel, alto - pixel * 6),  # Left
-            (x + ancho - pixel * 2, y + pixel * 3, pixel, alto - pixel * 6),  # Right
-        ]
-        for rect in rects_claro:
-            pygame.draw.rect(superficie, self.color_borde_claro, rect)
+        # === HIGHLIGHT SUPERIOR/IZQUIERDO (Blanco) ===
+        pygame.draw.rect(superficie, self.color_borde_claro, (x + pixel * 3, y + pixel, ancho - pixel * 6, pixel))
+        pygame.draw.rect(superficie, self.color_borde_claro, (x + pixel, y + pixel * 3, pixel, alto - pixel * 6))
         
-        # Esquinas interiores (claro)
+        # === SOMBRA INFERIOR/DERECHA (Gris oscuro) ===
+        pygame.draw.rect(superficie, self.color_borde_oscuro, (x + pixel * 3, y + alto - pixel * 2, ancho - pixel * 6, pixel))
+        pygame.draw.rect(superficie, self.color_borde_oscuro, (x + ancho - pixel * 2, y + pixel * 3, pixel, alto - pixel * 6))
+        
+        # === BORDE MEDIO (Gris medio) ===
+        pygame.draw.rect(superficie, self.color_borde_medio, (x + pixel * 4, y + pixel * 2, ancho - pixel * 8, pixel))
+        pygame.draw.rect(superficie, self.color_borde_medio, (x + pixel * 2, y + pixel * 4, pixel, alto - pixel * 8))
+        pygame.draw.rect(superficie, self.color_borde_medio, (x + pixel * 4, y + alto - pixel * 3, ancho - pixel * 8, pixel))
+        pygame.draw.rect(superficie, self.color_borde_medio, (x + ancho - pixel * 3, y + pixel * 4, pixel, alto - pixel * 8))
+        
         esquinas_int = [
             (x + pixel * 2, y + pixel * 2),
             (x + ancho - pixel * 3, y + pixel * 2),
@@ -74,28 +84,27 @@ class DialogoBox:
             (x + ancho - pixel * 3, y + alto - pixel * 3)
         ]
         for ex, ey in esquinas_int:
-            pygame.draw.rect(superficie, self.color_borde_claro, (ex, ey, pixel, pixel))
+            pygame.draw.rect(superficie, self.color_borde_medio, (ex, ey, pixel, pixel))
     
     def dibujar(self, superficie):
         if not self.activo:
             return
 
         margen = 40
-        padding = 25
+        padding = 20
         ancho = 700 - (margen * 2)
-        alto = 120
+        alto = 100  
         x = margen
         y = ALTO - alto - margen
         pixel = 4
         
-        self._dibujar_borde_pokemon(superficie, x, y, ancho, alto, pixel)
+        self._dibujar_borde_pokemon_gba(superficie, x, y, ancho, alto, pixel)
         
-        # Texto principal
-        texto_render = self.fuente_texto.render(self.texto, True, self.color_texto)
+        texto_render = self.fuente_texto.render(self.texto, False, self.color_texto)
         superficie.blit(texto_render, (x + padding, y + padding))
         
         if self.metadata:
             info_texto = " | ".join([f"{k}: {v}" for k, v in self.metadata.items()])
-            info_texto += " | Presiona Z para cerrar"
-            info_render = self.fuente_info.render(info_texto, True, self.color_info)
-            superficie.blit(info_render, (x + padding, y + alto - 35))
+            info_texto += " | Presiona Z"
+            info_render = self.fuente_info.render(info_texto, False, self.color_info)
+            superficie.blit(info_render, (x + padding, y + alto - 28))

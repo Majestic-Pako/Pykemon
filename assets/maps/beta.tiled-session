@@ -3,15 +3,43 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "test_map.tmx",
+    "activeFile": "pueblo_inicial.tmx",
     "expandedProjectPaths": [
         "."
     ],
     "file.lastUsedOpenFilter": "Todos los archivos (*)",
     "fileStates": {
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/arboles.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/bosque.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/estructuras.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/exterior.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
         "floor.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
+        },
+        "pueblo_inicial.tmx": {
+            "expandedObjectLayers": [
+                5,
+                4
+            ],
+            "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 394,
+                "y": 291.8333333333333
+            }
         },
         "test_map.tmx": {
             "scale": 1.5,
@@ -28,21 +56,34 @@
     },
     "last.externalTilesetPath": "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets",
     "last.imagePath": "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets",
-    "map.height": 25,
+    "map.height": 30,
     "map.lastUsedFormat": "tmx",
-    "map.width": 25,
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 30,
     "openFiles": [
-        "test_map.tmx",
-        "floor.tsx",
-        "wall.tsx"
+        "pueblo_inicial.tmx",
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/exterior.tsx",
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/estructuras.tsx",
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/bosque.tsx",
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/arboles.tsx"
     ],
     "project": "beta.tiled-project",
     "property.type": "string",
     "recentFiles": [
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/arboles.tsx",
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/bosque.tsx",
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/estructuras.tsx",
+        "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/exterior.tsx",
+        "pueblo_inicial.tmx",
+        "test_map.tmx",
         "wall.tsx",
-        "floor.tsx",
-        "test_map.tmx"
+        "floor.tsx"
     ],
     "tileset.lastUsedFilter": "Todos los archivos (*)",
-    "tileset.lastUsedFormat": "tsx"
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
 }
