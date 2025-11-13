@@ -1,3 +1,4 @@
+#Se importan todas las librerias y archivos, carpetas, clases
 import pygame 
 import sys
 from core.entities.movement import manejar_movimiento
@@ -9,6 +10,7 @@ from core.ui.MenuManager import MenuManager
 from core.ui.pokemon_menu import PokemonMenu
 from core.ui.bolsa_menu import BolsaMenu
 from core.ui.use_object_menu import UsarObjetoMenu
+from core.system.batalla import Batalla
 from core.system.portal_manager import PortalManager
 
 pygame.init() 
@@ -19,6 +21,7 @@ reloj = pygame.time.Clock()
 mapa = Mapa("assets/maps/pueblo_inicial.tmx")
 player = Player(ANCHO, ALTO, mapa.ancho, mapa.alto)
 camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
+batalla = Batalla(ANCHO, ALTO)
 
 menu = MenuManager(ANCHO, ALTO)
 pokemon_menu = PokemonMenu(ANCHO, ALTO)
@@ -29,6 +32,7 @@ portal_manager = PortalManager()
 jugando = True
 frame_count = 0
 objeto_a_usar = None
+resultado = None
 
 # Game Loop
 while jugando:
@@ -42,9 +46,50 @@ while jugando:
         if evento.type == pygame.KEYDOWN and evento.key == pygame.K_c:
             if not player.dialogo_box.activo:
                 menu.toggle()
+        
+        if evento.type == pygame.USEREVENT + 1:
+            if batalla.activo:
+                batalla.turno_enemigo()
     
     teclas = pygame.key.get_pressed()
     
+    # ===== ACTUALIZAR ANIMACIÓN DE BATALLA (LÍNEA NUEVA) =====
+    if batalla.activo:
+        batalla.actualizar_animacion()  # <--- ESTA ES LA LÍNEA NUEVA
+        resultado = batalla.procesar_eventos(eventos)
+
+        # Manejar resultados de batalla
+        if resultado in ["VICTORIA", "DERROTA", "ESCAPADO"]:
+            print(f"Resultado de batalla: {resultado}")
+            batalla.terminar_batalla()
+        
+        elif resultado == "TURNO_ENEMIGO":
+            # Esperar a que termine la animación del jugador (NUEVO)
+            while batalla.animacion_activa:
+                batalla.actualizar_animacion()
+                ventana_juego.fill(BLACK)
+                mapa.dibujar(ventana_juego, camera)
+                player.dibujar(ventana_juego, camera)
+                batalla.dibujar(ventana_juego)
+                pygame.display.flip()
+                reloj.tick(FPS)
+            
+            # Pausa adicional para leer el mensaje
+            pygame.time.wait(1000)
+            
+            # Ahora el enemigo ataca
+            batalla.turno_enemigo()
+        
+        elif resultado == "CAMBIO_POKEMON":
+            # El enemigo ataca después del cambio
+            pygame.time.wait(500)  # Pequeña pausa
+            batalla.turno_enemigo()
+
+        # Evento del turno enemigo
+        for evento in eventos:
+            if evento.type == pygame.USEREVENT + 1:
+                batalla.turno_enemigo()
+
     if menu.activo:
         accion = menu.manejar_input(eventos)
         
@@ -71,7 +116,6 @@ while jugando:
         if resultado == "VOLVER":
             menu.toggle()
         elif resultado and resultado[0] == "USAR_OBJETO":
-        # Guardar objeto y abrir menú de selección de Pokémon
             objeto_a_usar = resultado[1]
             item_nombre = bolsa_menu.objects_data[objeto_a_usar]["nombre"]
             usar_objeto_menu.abrir(player.equipo_pokemon, item_nombre)
@@ -82,7 +126,7 @@ while jugando:
         resultado = usar_objeto_menu.manejar_input(eventos)
     
         if resultado == "CANCELAR":
-            bolsa_menu.activo = True  # Volver a la bolsa
+            bolsa_menu.activo = True
         elif resultado and resultado[0] == "CONFIRMAR":
             pokemon_index = resultado[1]
             pokemon_objetivo = player.equipo_pokemon[pokemon_index]
@@ -113,6 +157,17 @@ while jugando:
         # Testo de zona de combate
         frame_count += 1
         if frame_count % 30 == 0:
+            if not batalla.activo and player.testear_combate(mapa.zonas_combate):
+                from core.entities.pokemon import Pokemon
+                import random
+
+                pokemons_disponibles = ["treecko", "torchic", "mudkip", "rattata", "pidgey"]
+                nombre_enemigo = random.choice(pokemons_disponibles)
+                pokemon_enemigo = Pokemon(nombre_enemigo, nivel=5)
+                
+                batalla.empezar_batalla(player, pokemon_enemigo)
+
+
             if not player.dialogo_box.activo:
                 player.testear_combate(mapa.zonas_combate)
         
@@ -142,9 +197,11 @@ while jugando:
     pokemon_menu.dibujar(ventana_juego)
     bolsa_menu.dibujar(ventana_juego)
     usar_objeto_menu.dibujar(ventana_juego)
+    batalla.dibujar(ventana_juego)
     
     pygame.display.flip()
     reloj.tick(FPS)
+    continue
 
 pygame.quit() 
 sys.exit()
