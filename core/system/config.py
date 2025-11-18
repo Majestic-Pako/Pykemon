@@ -6,12 +6,10 @@ ALTO = 640
 
 ESCALA_JUEGO = 2
 
-# Dimensiones de Jugador
 TAMAÑO_CUADRADO = 32
 VELOCIDAD = 5
 FPS = 30
 
-# Colores
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)

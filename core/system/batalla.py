@@ -31,17 +31,106 @@ class Batalla:
         self.animacion_frame = 0
         self.animacion_duracion = 20
         
-        # UI (separada)
-        self.ui = BatallaUI(ancho, alto)
-        
-        self.turno_enemigo_pendiente = False
-        
-        # Sistema de captura con suspenso
+        # Sistema de captura
         self.captura_en_progreso = False
         self.captura_mensajes = []
         self.captura_indice = 0
         self.captura_exitosa = False
         self.ocultar_enemigo = False
+        
+        # Sistema de transiciones
+        self.transicion_activa = False
+        self.transicion_alpha = 0
+        self.transicion_estado = None  # "FADE_OUT", "FADE_IN", "FLASH"
+        self.transicion_velocidad = 15
+        self.transicion_tipo = None  # "batalla", "huir"
+        self.flash_counter = 0
+        self.flash_max = 4  # Número de parpadeos
+        
+        # Guardar datos pendientes de batalla
+        self.batalla_pendiente_jugador = None
+        self.batalla_pendiente_enemigo = None
+        
+        # UI (separada)
+        self.ui = BatallaUI(ancho, alto)
+    
+    # ==================== SISTEMA DE TRANSICIONES ====================
+    
+    def iniciar_transicion(self, jugador, pokemon_enemigo):
+        """Inicia la transición de entrada a batalla (con flash)"""
+        self.transicion_activa = True
+        self.transicion_alpha = 0
+        self.transicion_estado = "FLASH"
+        self.transicion_tipo = "batalla"
+        self.flash_counter = 0
+        
+        # Guardar datos para después del flash
+        self.batalla_pendiente_jugador = jugador
+        self.batalla_pendiente_enemigo = pokemon_enemigo
+    
+    def iniciar_transicion_huir(self):
+        """Inicia la transición de salida (fade out simple)"""
+        self.transicion_activa = True
+        self.transicion_alpha = 0
+        self.transicion_estado = "FADE_OUT"
+        self.transicion_tipo = "huir"
+    
+    def actualizar_transicion(self):
+        """Actualiza el fade de transición"""
+        if not self.transicion_activa:
+            return
+        
+        if self.transicion_tipo == "batalla":
+            # Animación de encuentro (flash blanco)
+            if self.transicion_estado == "FLASH":
+                self.flash_counter += 1
+                
+                # Alternar entre blanco y transparente
+                if self.flash_counter % 8 < 4:
+                    self.transicion_alpha = 255
+                else:
+                    self.transicion_alpha = 0
+                
+                # Después de varios flashes, hacer fade in normal
+                if self.flash_counter >= (self.flash_max * 8):
+                    self.empezar_batalla(
+                        self.batalla_pendiente_jugador,
+                        self.batalla_pendiente_enemigo
+                    )
+                    self.transicion_estado = "FADE_IN"
+                    self.transicion_alpha = 255
+            
+            elif self.transicion_estado == "FADE_IN":
+                # Aclarar pantalla después del encuentro
+                self.transicion_alpha -= self.transicion_velocidad
+                
+                if self.transicion_alpha <= 0:
+                    self.transicion_alpha = 0
+                    self.transicion_activa = False
+                    self.transicion_estado = None
+        
+        elif self.transicion_tipo == "huir":
+            # Animación de huida (fade out)
+            if self.transicion_estado == "FADE_OUT":
+                self.transicion_alpha += self.transicion_velocidad
+                
+                if self.transicion_alpha >= 255:
+                    self.transicion_alpha = 255
+                    # Terminar batalla cuando está completamente oscuro
+                    self.terminar_batalla()
+                    self.transicion_activa = False
+    
+    def dibujar_transicion(self, ventana):
+        """Dibuja la capa de transición sobre todo"""
+        if self.transicion_activa or self.transicion_alpha > 0:
+            # Color depende del tipo de transición
+            color = (255, 255, 255) if self.transicion_tipo == "batalla" and self.transicion_estado == "FLASH" else (0, 0, 0)
+            
+            # Crear superficie semi-transparente
+            overlay = pygame.Surface((self.ancho, self.alto))
+            overlay.fill(color)
+            overlay.set_alpha(self.transicion_alpha)
+            ventana.blit(overlay, (0, 0))
     
     # ==================== CONTROL DE BATALLA ====================
     
@@ -68,7 +157,8 @@ class Batalla:
         self.categoria_bolsa_actual = "curacion"
         self.animacion_activa = False
         self.animacion_frame = 0
-        self.turno_enemigo_pendiente = False
+        
+        # Reset captura
         self.captura_en_progreso = False
         self.captura_mensajes = []
         self.captura_indice = 0
@@ -85,6 +175,8 @@ class Batalla:
         self.estado_actual = "MENSAJE"
         self.animacion_activa = False
         self.animacion_frame = 0
+        self.transicion_activa = False
+        self.transicion_alpha = 0
     
     # ==================== ANIMACIONES ====================
     
@@ -143,6 +235,13 @@ class Batalla:
                                     return "CAPTURA"
                                 else:
                                     return "TURNO_ENEMIGO"
+                        # Mensajes de VICTORIA/DERROTA
+                        elif "Ganaste" in self.mensaje or "derrotado" in self.mensaje.lower():
+                            self.terminar_batalla()
+                            return None
+                        elif "fue derrotado" in self.mensaje and self.mi_pokemon.nombre in self.mensaje:
+                            self.terminar_batalla()
+                            return None
                         else:
                             self.estado_actual = "MENU"
                             self.mensaje = ""
@@ -162,7 +261,7 @@ class Batalla:
         return None
     
     def _manejar_input_menu(self, tecla):
-        """Maneja input del menú principal"""
+        """Maneja input del menú principal (2x2)"""
         if tecla == pygame.K_UP:
             if self.opcion_actual >= 2:
                 self.opcion_actual -= 2
@@ -181,11 +280,21 @@ class Batalla:
         return None
     
     def _manejar_input_ataques(self, tecla):
-        """Maneja input del menú de ataques"""
+        """Maneja input del menú de ataques (2x2)"""
+        num_movimientos = len(self.mi_pokemon.movimientos)
+        
         if tecla == pygame.K_UP:
-            self.opcion_actual = (self.opcion_actual - 1) % len(self.mi_pokemon.movimientos)
+            if self.opcion_actual >= 2:
+                self.opcion_actual -= 2
         elif tecla == pygame.K_DOWN:
-            self.opcion_actual = (self.opcion_actual + 1) % len(self.mi_pokemon.movimientos)
+            if self.opcion_actual <= 1 and self.opcion_actual + 2 < num_movimientos:
+                self.opcion_actual += 2
+        elif tecla == pygame.K_LEFT:
+            if self.opcion_actual % 2 == 1:
+                self.opcion_actual -= 1
+        elif tecla == pygame.K_RIGHT:
+            if self.opcion_actual % 2 == 0 and self.opcion_actual + 1 < num_movimientos:
+                self.opcion_actual += 1
         elif tecla in [pygame.K_RETURN, pygame.K_z]:
             return self.usar_ataque()
         elif tecla == pygame.K_x:
@@ -195,18 +304,22 @@ class Batalla:
         return None
     
     def _manejar_input_pokemon(self, tecla):
-        """Maneja input del menú de Pokémon"""
+        """Maneja input del menú de Pokémon (2x3 dinámico)"""
+        num_pokemon = len(self.jugador.equipo_pokemon)
+        
         if tecla == pygame.K_UP:
-            if self.opcion_actual >= 3: 
-                self.opcion_actual -= 3
+            nueva_opcion = self.opcion_actual - 3
+            if nueva_opcion >= 0:
+                self.opcion_actual = nueva_opcion
         elif tecla == pygame.K_DOWN:
-            if self.opcion_actual <= 2:  
-                self.opcion_actual += 3
+            nueva_opcion = self.opcion_actual + 3
+            if nueva_opcion < num_pokemon:
+                self.opcion_actual = nueva_opcion
         elif tecla == pygame.K_LEFT:
-            if self.opcion_actual % 3 != 0:  
+            if self.opcion_actual % 3 != 0:
                 self.opcion_actual -= 1
         elif tecla == pygame.K_RIGHT:
-            if self.opcion_actual % 3 != 2:  
+            if self.opcion_actual % 3 != 2 and self.opcion_actual < num_pokemon - 1:
                 self.opcion_actual += 1
         elif tecla in [pygame.K_RETURN, pygame.K_z]:
             return self.cambiar_pokemon()
@@ -217,26 +330,31 @@ class Batalla:
         return None
     
     def _manejar_input_bolsa(self, tecla):
+        """Maneja input del menú de bolsa (lista simple)"""
         items_usables = {}
-        categorias_usables = ["curacion", "captura", "debug"]  # TODAS incluyendo captura
+        categorias_usables = ["curacion", "captura", "debug"]
+        
         for categoria in categorias_usables:
             if categoria in self.jugador.bolsa:
                 for item_key, cantidad in self.jugador.bolsa[categoria].items():
                     if cantidad > 0 and item_key in self.jugador.objects_data:
                         items_usables[item_key] = cantidad
+        
         items_lista = list(items_usables.keys())
+        
         if tecla == pygame.K_UP:
             if items_lista:
-                self.opcion_actual = (self.opcion_actual - 1) % len(items_lista)
+                self.opcion_actual = max(0, self.opcion_actual - 1)
         elif tecla == pygame.K_DOWN:
             if items_lista:
-                self.opcion_actual = (self.opcion_actual + 1) % len(items_lista)
+                self.opcion_actual = min(len(items_lista) - 1, self.opcion_actual + 1)
         elif tecla in [pygame.K_RETURN, pygame.K_z]:
             if items_lista and self.opcion_actual < len(items_lista):
                 return self.usar_objeto_seleccionado()
         elif tecla in [pygame.K_ESCAPE, pygame.K_x]:
             self.estado_actual = "MENU"
             self.opcion_actual = 0
+        
         return None
     
     # ==================== ACCIONES DE BATALLA ====================
@@ -250,8 +368,10 @@ class Batalla:
             self.opcion_actual = 0
         
         elif accion == "HUIR":
+            # Iniciar transición de huida
             self.mensaje = "Escapaste con exito!"
             self.estado_actual = "MENSAJE"
+            self.iniciar_transicion_huir()
             return "ESCAPADO"
         
         elif accion == "BOLSA":
@@ -275,8 +395,8 @@ class Batalla:
         """Usa el ataque seleccionado"""
         ataque = self.mi_pokemon.movimientos[self.opcion_actual]
         
-        # ✅ VERIFICAR SI TIENE PP
-        if ataque["pp_actual"] <= 0:
+        # Verificar PP
+        if ataque.get("pp_actual", 0) <= 0:
             self.mensaje = f"{ataque['nombre']} no tiene PP!"
             self.estado_actual = "MENSAJE"
             return None
@@ -288,13 +408,13 @@ class Batalla:
         self.animacion_frame = 0
         
         self.pokemon_enemigo.ps_actual -= danio
-        ataque["pp_actual"] -= 1  # ✅ REDUCIR PP
+        ataque["pp_actual"] -= 1  # Reducir PP
         
         self.mensaje = f"{self.mi_pokemon.nombre} uso {ataque['nombre']}!"
         self.estado_actual = "MENSAJE"
 
         if self.pokemon_enemigo.esta_debilitado():
-            self.mensaje = f"El {self.pokemon_enemigo.nombre} enemigo fue derrotado!"
+            self.mensaje = f"El {self.pokemon_enemigo.nombre} enemigo fue derrotado! Ganaste!"
             self.estado_actual = "MENSAJE"
             return "VICTORIA"
         
@@ -302,20 +422,15 @@ class Batalla:
     
     def cambiar_pokemon(self):
         """Cambia al Pokémon seleccionado"""
-        if self.opcion_actual < 0 or self.opcion_actual >= len(self.jugador.equipo_pokemon):
-            self.mensaje = "Selección de Pokémon inválida."
-            self.estado_actual = "MENSAJE"
-            return None
-
         pokemon_seleccionado = self.jugador.equipo_pokemon[self.opcion_actual]
         
         if pokemon_seleccionado == self.mi_pokemon:
-            self.mensaje = f"{pokemon_seleccionado.nombre} ya está en batalla!"
+            self.mensaje = f"{pokemon_seleccionado.nombre} ya esta en batalla!"
             self.estado_actual = "MENSAJE"
             return None
         
         if pokemon_seleccionado.esta_debilitado():
-            self.mensaje = f"{pokemon_seleccionado.nombre} está debilitado!"
+            self.mensaje = f"{pokemon_seleccionado.nombre} esta debilitado!"
             self.estado_actual = "MENSAJE"
             return None
         
@@ -327,7 +442,6 @@ class Batalla:
     
     def usar_objeto_seleccionado(self):
         """Usa el objeto seleccionado de la bolsa"""
-        # TODAS las categorías usables en combate
         items_usables = {}
         categorias_usables = ["curacion", "captura", "debug"]
     
@@ -346,12 +460,12 @@ class Batalla:
     
         objeto_key = items_lista[self.opcion_actual]
     
-        # Usar el objeto según su categoría
+        # Usar según categoría
         if objeto_key in self.jugador.bolsa.get("curacion", {}):
             resultado = self.jugador.usar_objeto(objeto_key, self.mi_pokemon)
             self.mensaje = resultado["mensaje"]
             self.estado_actual = "MENSAJE"
-            return "OBJETO_USADO"
+            return "TURNO_ENEMIGO"
     
         elif objeto_key in self.jugador.bolsa.get("captura", {}):
             resultado = self.jugador.usar_objeto(objeto_key)
@@ -361,9 +475,9 @@ class Batalla:
                 self.captura_indice = 0
                 self.ocultar_enemigo = True
                 
-                # ✅ FÓRMULA DE CAPTURA CON BONUS POR VIDA BAJA
+                # Fórmula de captura con bonus por vida baja
                 vida_porcentaje = self.pokemon_enemigo.ps_actual / self.pokemon_enemigo.stats_actuales["ps"]
-                bonus_vida = (1 - vida_porcentaje) * 0.5  # Hasta +50% si está en 1 PS
+                bonus_vida = (1 - vida_porcentaje) * 0.3
                 
                 tasa_base = resultado["tasa_captura"]
                 probabilidad_captura = tasa_base + bonus_vida
@@ -371,27 +485,25 @@ class Batalla:
                 probabilidad = random.random()
                 captura_exitosa = probabilidad < probabilidad_captura
                 
-                # Crear secuencia de mensajes con contador
-                nombre_ball = resultado['mensaje'].split()[-1]
+                # Crear secuencia de mensajes
+                nombre_ball = self.jugador.objects_data[objeto_key]["nombre"]
                 self.captura_mensajes = [
-                    f"[1] ¡Lanzaste una {nombre_ball}!",
-                    f"[2] ¡La Pokeball golpeo a {self.pokemon_enemigo.nombre}!"
+                    f"Lanzaste una {nombre_ball}!",
+                    f"Golpeo a {self.pokemon_enemigo.nombre}!"
                 ]
                 
-                # Agregar mensajes de agitación (1-3 veces según suerte)
+                # Agitaciones (1-3 veces)
                 num_agitaciones = random.randint(1, 3)
                 for i in range(num_agitaciones):
-                    contador = 3 + i
-                    self.captura_mensajes.append(f"[{contador}] ¡La Pokeball se agita!")
+                    self.captura_mensajes.append("La Pokeball se agita...")
                 
                 # Resultado final
-                contador_final = len(self.captura_mensajes) + 1
                 if captura_exitosa:
                     self.jugador.agregar_pokemon(self.pokemon_enemigo)
-                    self.captura_mensajes.append(f"[{contador_final}] ¡Capturaste a {self.pokemon_enemigo.nombre}!")
+                    self.captura_mensajes.append(f"Capturaste a {self.pokemon_enemigo.nombre}!")
                     self.captura_exitosa = True
                 else:
-                    self.captura_mensajes.append(f"[{contador_final}] ¡Oh no! {self.pokemon_enemigo.nombre} escapo!")
+                    self.captura_mensajes.append(f"{self.pokemon_enemigo.nombre} escapo de la ball!")
                     self.captura_exitosa = False
                 
                 self.mensaje = self.captura_mensajes[0]
@@ -405,7 +517,7 @@ class Batalla:
             resultado = self.jugador.usar_objeto(objeto_key, self.mi_pokemon)
             self.mensaje = resultado["mensaje"]
             self.estado_actual = "MENSAJE"
-            return "OBJETO_USADO"
+            return "TURNO_ENEMIGO"
         
         return None
     
@@ -415,11 +527,12 @@ class Batalla:
             if not self.pokemon_enemigo.movimientos:
                 self.pokemon_enemigo.cargar_movimientos()
             
-            # ✅ FILTRAR MOVIMIENTOS CON PP DISPONIBLE
-            movimientos_con_pp = [m for m in self.pokemon_enemigo.movimientos if m.get("pp_actual", 0) > 0]
+            # Filtrar movimientos con PP disponible
+            movimientos_disponibles = [m for m in self.pokemon_enemigo.movimientos if m.get("pp_actual", 0) > 0]
             
-            if not movimientos_con_pp:
-                self.mensaje = f"{self.pokemon_enemigo.nombre} no puede atacar! (sin PP)"
+            if not movimientos_disponibles:
+                # Sin PP, el enemigo no puede atacar
+                self.mensaje = f"{self.pokemon_enemigo.nombre} no tiene PP!"
                 self.estado_actual = "MENSAJE"
                 return None
             
@@ -427,8 +540,8 @@ class Batalla:
             self.animacion_tipo = "ataque_enemigo"
             self.animacion_frame = 0
             
-            ataque = random.choice(movimientos_con_pp)  # ✅ ELEGIR DE LOS QUE TIENEN PP
-            ataque["pp_actual"] -= 1  # ✅ REDUCIR PP
+            ataque = random.choice(movimientos_disponibles)
+            ataque["pp_actual"] -= 1  # Reducir PP
             
             danio = random.randint(3, 10)
             self.mi_pokemon.ps_actual -= danio
@@ -436,7 +549,7 @@ class Batalla:
             self.estado_actual = "MENSAJE"
             
             if self.mi_pokemon.esta_debilitado():
-                self.mensaje = f"{self.mi_pokemon.nombre} fue derrotado!"
+                self.mensaje = f"{self.mi_pokemon.nombre} fue derrotado! Perdiste..."
                 self.estado_actual = "MENSAJE"
                 return "DERROTA"
         
@@ -445,8 +558,11 @@ class Batalla:
     # ==================== RENDERIZADO ====================
     
     def dibujar(self, ventana):
-        """Dibuja toda la interfaz de batalla usando la nueva UI"""
+        """Dibuja toda la interfaz de batalla"""
         if not self.activo:
+            # Si hay transición pero no hay batalla activa (durante fade out)
+            if self.transicion_activa:
+                self.dibujar_transicion(ventana)
             return
     
         # Fondo
@@ -455,7 +571,7 @@ class Batalla:
         # Obtener offsets de animación
         offset_jugador, offset_enemigo = self.obtener_offset_animacion()
     
-        # Pokémon (ocultar enemigo si estamos en captura)
+        # Pokémon (ocultar enemigo durante captura)
         if not self.ocultar_enemigo:
             self.ui.dibujar_pokemon_enemigo(ventana, self.pokemon_enemigo, offset_enemigo)
         self.ui.dibujar_pokemon_jugador(ventana, self.mi_pokemon, offset_jugador)
@@ -466,7 +582,8 @@ class Batalla:
         if self.estado_actual == "MENU":
             datos_estado = {
                 "opciones": self.opciones_menu,
-                "opcion_actual": self.opcion_actual
+                "opcion_actual": self.opcion_actual,
+                "pokemon_activo": self.mi_pokemon
             }
     
         elif self.estado_actual == "MENSAJE":
@@ -496,5 +613,18 @@ class Batalla:
                 "objects_data": self.jugador.objects_data
             }
     
-        # Dibujar el estado actual (esto reemplaza todos los dibujar_* individuales)
-        self.ui.dibujar_estado_actual(ventana, self.estado_actual, datos_estado)
+        # Llamar a la UI para que dibuje el estado correspondiente
+        try:
+            self.ui.dibujar_estado_actual(ventana, self.estado_actual, datos_estado)
+        except Exception as e:
+            # Fallback mínimo: dibujar el mensaje si hay problemas en la UI
+            if self.estado_actual == "MENSAJE" and self.mensaje:
+                try:
+                    pygame.draw.rect(ventana, (240,240,240), (20, self.alto-140, self.ancho-40, 120))
+                    texto = self.ui.fuente_normal.render(str(self.mensaje), False, self.ui.color_texto)
+                    ventana.blit(texto, (40, self.alto-120))
+                except:
+                    pass
+
+        # Dibujar transición encima de todo (si está activa)
+        self.dibujar_transicion(ventana)

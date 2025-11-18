@@ -1,4 +1,3 @@
-#Importa las librerias necesarias
 import pygame
 import json
 from core.system.config import *
@@ -7,11 +6,13 @@ from core.system.camera import Camera
 from core.ui.dialog import DialogoBox
 from core.entities.pokemon import Pokemon
 
-#Se declara la clase player con sus atributos
 class Player(pygame.sprite.Sprite):
     def __init__(self, ancho, alto, ancho_mapa, alto_mapa):
         super().__init__()
-        self.image = self.cargar_sprite()
+        
+        self.sprites = self.cargar_sprites_direccionales()
+        self.direccion_actual = "down"  
+        self.image = self.sprites[self.direccion_actual]
         self.rect = self.image.get_rect(
             center=(ancho // 2, alto // 2)
         )
@@ -24,12 +25,10 @@ class Player(pygame.sprite.Sprite):
         self._z_held = False
         self.equipo_pokemon = []
         self.bolsa = {
-        #Se hace un array con posiciones con estos nombres
-        "curacion": {},      # {"Poción": 5, "Superpoción": 2}
-        "captura": {},     # {"Pokéball": 10, "Superball": 3}
-        "debug": {}          # carameloraro 
+        "curacion": {},   
+        "captura": {},  
+        "debug": {}        
         }
-        #Se abre el objeto si toca tal tecla
         with open("data/objects.json", "r", encoding="utf-8") as f:
             self.objects_data = json.load(f)
         
@@ -42,29 +41,64 @@ class Player(pygame.sprite.Sprite):
         self.agregar_objeto("pokeball", 10)
         self.agregar_objeto("caramelo_raro", 10)
 
-    def cargar_sprite(self):
-        try:
-            sprite = pygame.image.load("assets/sprites/npcs/npc1.png")
-            sprite = pygame.transform.scale(sprite, (TAMAÑO_CUADRADO, TAMAÑO_CUADRADO))
-            return sprite
-        except FileNotFoundError:
-            placeholder = pygame.Surface((TAMAÑO_CUADRADO, TAMAÑO_CUADRADO))
-            placeholder.fill(RED)
-            return placeholder
-    #Esta funcion limita con los parametros las teclas y se actualiza mediante el juego
+    def cargar_sprites_direccionales(self):
+        sprites = {}
+        direcciones = {
+            "up": "PU",
+            "down": "PD",
+            "left": "PL",
+            "right": "PR"
+        }
+        
+        for direccion, sufijo in direcciones.items():
+            try:
+                ruta = f"assets/sprites/player/{sufijo}.png"
+                sprite = pygame.image.load(ruta)
+                # Escalar de 16x24 a 32x48
+                sprite = pygame.transform.scale(sprite, (16 * 2, 24 * 2))
+                sprites[direccion] = sprite
+                #print(f"[OK] Sprite cargado: {ruta}")
+            except FileNotFoundError:
+                #print(f"[WARN] No se encontró: {ruta}")
+                placeholder = pygame.Surface((16 * 2, 24 * 2))
+                colores = {
+                    "up": (255, 0, 0),     
+                    "down": (0, 255, 0),   
+                    "left": (0, 0, 255),   
+                    "right": (255, 255, 0)  
+                }
+                placeholder.fill(colores[direccion])
+                sprites[direccion] = placeholder
+        
+        return sprites
+
+    def cambiar_sprite(self, direccion):
+        if direccion in self.sprites:
+            self.direccion_actual = direccion
+            pos_anterior = self.rect.center
+            self.image = self.sprites[direccion]
+            self.rect = self.image.get_rect(center=pos_anterior)
+    
     def update(self, teclas):
+        if teclas[pygame.K_UP]:
+            self.cambiar_sprite("up")
+        elif teclas[pygame.K_DOWN]:
+            self.cambiar_sprite("down")
+        elif teclas[pygame.K_LEFT]:
+            self.cambiar_sprite("left")
+        elif teclas[pygame.K_RIGHT]:
+            self.cambiar_sprite("right")
+        
         self.limitar_limites()
     
-    #Marca los limites del mapa y el tamaño
     def limitar_limites(self):
-        self.rect.x = max(0, min(self.rect.x, self.ancho_mapa - TAMAÑO_CUADRADO))
-        self.rect.y = max(0, min(self.rect.y, self.alto_mapa - TAMAÑO_CUADRADO))
+        self.rect.x = max(0, min(self.rect.x, self.ancho_mapa - (16 * 2)))
+        self.rect.y = max(0, min(self.rect.y, self.alto_mapa - (24 * 2)))
     
-    #Dibuja
     def dibujar(self, superficie, camera):
         superficie.blit(self.image, camera.apply(self.rect))
         self.dialogo_box.dibujar(superficie)
-    #Maneja el dialogo con ciertas teclas
+    
     def manejar_dialogo(self, teclas, npcs):
         z_now = teclas[pygame.K_z]
         if z_now and not self._z_held:
@@ -80,7 +114,7 @@ class Player(pygame.sprite.Sprite):
                         pygame.time.wait(150)
                         break
         self._z_held = z_now
-    #Testea el combate en acercamiento del personaje cuando se mueve
+    
     def testear_combate(self, zonas_combate):
         for zona in zonas_combate:
             if self.rect.colliderect(zona["rect"]):
@@ -93,46 +127,38 @@ class Player(pygame.sprite.Sprite):
                     self.dialogo_box.mostrar(texto, metadata)
                     return True
         return False
-    #Solo puede moverse si el dialogo no esta activo
+    
     def puede_moverse(self):
         return not self.dialogo_box.activo
-    # ========== MÉTODOS DE EQUIPO POKÉMON ==========
     
     def obtener_equipo(self):
-        """Devuelve la lista completa del equipo"""
         return self.equipo_pokemon
     
     def obtener_pokemon_activo(self):
-        """Devuelve el primer Pokémon no debilitado del equipo"""
         for pokemon in self.equipo_pokemon:
             if not pokemon.esta_debilitado():
                 return pokemon
         return None
     
     def obtener_pokemon_por_indice(self, indice):
-        """Devuelve un Pokémon específico por su índice en el equipo"""
         if 0 <= indice < len(self.equipo_pokemon):
             return self.equipo_pokemon[indice]
         return None
     
     def agregar_pokemon(self, pokemon_instancia):
-        """Agrega un Pokémon al equipo (máximo 6)"""
         if len(self.equipo_pokemon) < 6:
             self.equipo_pokemon.append(pokemon_instancia)
             return {"exito": True, "mensaje": f"{pokemon_instancia.nombre} se unió al equipo!"}
         else:
-            # Aquí podrías implementar envío al PC
-            return {"exito": False, "mensaje": "Equipo lleno! (Enviar a PC pendiente)"}
+            return {"exito": False, "mensaje": "Equipo lleno! (Enviar a PC)"}
     
     def quitar_pokemon(self, indice):
-        """Remueve un Pokémon del equipo (útil para transferencias)"""
         if 0 <= indice < len(self.equipo_pokemon):
             pokemon = self.equipo_pokemon.pop(indice)
             return {"exito": True, "pokemon": pokemon}
         return {"exito": False, "pokemon": None}
     
     def intercambiar_pokemon(self, indice1, indice2):
-        """Intercambia la posición de dos Pokémon en el equipo"""
         if (0 <= indice1 < len(self.equipo_pokemon) and 
             0 <= indice2 < len(self.equipo_pokemon)):
             self.equipo_pokemon[indice1], self.equipo_pokemon[indice2] = \
@@ -141,31 +167,23 @@ class Player(pygame.sprite.Sprite):
         return False
     
     def tiene_pokemon_vivos(self):
-        """Verifica si hay al menos un Pokémon no debilitado"""
         return any(not p.esta_debilitado() for p in self.equipo_pokemon)
     
     def curar_equipo_completo(self):
-        """Cura todos los Pokémon del equipo (para Centros Pokémon)"""
         for pokemon in self.equipo_pokemon:
             pokemon.ps_actual = pokemon.stats_actuales["ps"]
-            # ✅ RESTAURAR PP DE LOS MOVIMIENTOS
             pokemon.restaurar_pp()
         return True
     
-    # ========== MÉTODOS DE BOLSA ==========
-    
     def obtener_bolsa(self):
-        """Devuelve el diccionario completo de la bolsa"""
         return self.bolsa
     
     def obtener_objetos_por_tipo(self, tipo):
-        """Devuelve los objetos de un tipo específico (curacion, captura, debug)"""
         if tipo in self.bolsa:
             return self.bolsa[tipo]
         return {}
     
     def tiene_objeto(self, objeto_key):
-        """Verifica si el jugador tiene al menos 1 unidad de un objeto"""
         objeto_data = self.objects_data.get(objeto_key)
         if not objeto_data:
             return False
@@ -174,7 +192,6 @@ class Player(pygame.sprite.Sprite):
         return objeto_key in self.bolsa[tipo] and self.bolsa[tipo][objeto_key] > 0
     
     def contar_objeto(self, objeto_key):
-        """Devuelve la cantidad de un objeto específico"""
         objeto_data = self.objects_data.get(objeto_key)
         if not objeto_data:
             return 0
@@ -183,7 +200,6 @@ class Player(pygame.sprite.Sprite):
         return self.bolsa[tipo].get(objeto_key, 0)
     
     def agregar_objeto(self, objeto_key, cantidad=1):
-        """Agrega objetos a la bolsa"""
         if objeto_key not in self.objects_data:
             return {"exito": False, "mensaje": "Objeto no encontrado"}
         
@@ -198,7 +214,6 @@ class Player(pygame.sprite.Sprite):
         return {"exito": True, "mensaje": f"Obtenido: {nombre} x{cantidad}"}
     
     def quitar_objeto(self, objeto_key, cantidad=1):
-        """Remueve objetos de la bolsa (útil para ventas/drops)"""
         if not self.tiene_objeto(objeto_key):
             return {"exito": False, "mensaje": "No tienes ese objeto"}
         
@@ -213,20 +228,16 @@ class Player(pygame.sprite.Sprite):
         else:
             return {"exito": False, "mensaje": "No tienes suficientes"}
 
-    #Usa el objeto si se abrio tal cosa con una tecla
     def usar_objeto(self, objeto_key, pokemon_objetivo=None):
-        """Usa un objeto en un Pokémon"""
         if objeto_key not in self.objects_data:
             return {"exito": False, "mensaje": "Objeto no encontrado"}
         
         objeto_data = self.objects_data[objeto_key]
         tipo = objeto_data["tipo"]
         
-        # Verificar que tenemos el objeto
         if not self.tiene_objeto(objeto_key):
             return {"exito": False, "mensaje": f"No tienes {objeto_data['nombre']}"}
         
-        # Aplicar efecto según tipo
         resultado = {"exito": False, "mensaje": ""}
         
         if objeto_data["efecto"] == "restaurar_ps":
@@ -249,13 +260,12 @@ class Player(pygame.sprite.Sprite):
             }
         
         elif objeto_data["efecto"] == "capturar":
-            # Para usar en combate
             resultado = {
                 "exito": True,
                 "tasa_captura": objeto_data["valor"],
                 "mensaje": f"Usando {objeto_data['nombre']}"
             }
-        #Condiciones logicas    
+        
         elif objeto_data["efecto"] == "subir_nivel":
             if not pokemon_objetivo:
                 return {"exito": False, "mensaje": "Selecciona un Pokémon"}
@@ -270,7 +280,6 @@ class Player(pygame.sprite.Sprite):
                 "mensaje": f"{pokemon_objetivo.nombre} subió a nivel {pokemon_objetivo.nivel}!"
             }
         
-        # Consumir objeto si se usó exitosamente
         if resultado["exito"]:
             self.bolsa[tipo][objeto_key] -= 1
             if self.bolsa[tipo][objeto_key] <= 0:

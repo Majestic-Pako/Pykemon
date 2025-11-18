@@ -5,36 +5,28 @@ class UsarObjetoMenu:
     def __init__(self, ancho_pantalla, alto_pantalla):
         self.ancho_pantalla = ancho_pantalla
         self.alto_pantalla = alto_pantalla
-        
         self.activo = False
         self.equipo_pokemon = []
         self.pokemon_seleccionado = 0
         self.item_nombre = ""
-        
         self.ancho_ventana = 350
         self.margen_derecho = 20
         self.x_ventana = ancho_pantalla - self.ancho_ventana - self.margen_derecho
-        
         self.color_fondo = (248, 248, 248)  
         self.color_fondo_sombra = (200, 200, 192)
-        
         self.color_borde_externo = (0, 0, 0)
         self.color_borde_claro = (248, 248, 248)
         self.color_borde_medio = (104, 104, 104)
         self.color_borde_oscuro = (56, 56, 56)
-        
         self.color_texto = (80, 80, 80)
         self.color_texto_claro = (120, 120, 120)
         self.color_seleccion = (120, 160, 200)  
         self.color_seleccion_borde = (80, 120, 160)  
         self.color_info = (112, 112, 112)
-        
         self.fuente_titulo = pygame.font.Font(None, 24)
         self.fuente_nombre = pygame.font.Font(None, 20)
         self.fuente_info = pygame.font.Font(None, 18)
-        
         self.pixel = 4
-        
         self._ultima_tecla = 0
         self.KEY_DELAY = 150
     
@@ -51,18 +43,15 @@ class UsarObjetoMenu:
     def _dibujar_borde_pokemon_gba(self, superficie, x, y, ancho, alto):
         p = self.pixel
         
-        # Fondo principal
         fondo = pygame.Surface((ancho - p * 4, alto - p * 4))
         fondo.fill(self.color_fondo)
         superficie.blit(fondo, (x + p * 2, y + p * 2))
         
-        # Sombra interna
         sombra = pygame.Surface((ancho - p * 6, alto - p * 6))
         sombra.fill(self.color_fondo_sombra)
         sombra.set_alpha(30)
         superficie.blit(sombra, (x + p * 4, y + p * 4))
         
-        # === BORDE EXTERNO (Negro) ===
         pygame.draw.rect(superficie, self.color_borde_externo, (x + p * 2, y, ancho - p * 4, p))
         pygame.draw.rect(superficie, self.color_borde_externo, (x + p * 2, y + alto - p, ancho - p * 4, p))
         pygame.draw.rect(superficie, self.color_borde_externo, (x, y + p * 2, p, alto - p * 4))
@@ -75,15 +64,12 @@ class UsarObjetoMenu:
         for ex, ey in esquinas_ext:
             pygame.draw.rect(superficie, self.color_borde_externo, (ex, ey, p, p))
         
-        # === HIGHLIGHT (Blanco) ===
         pygame.draw.rect(superficie, self.color_borde_claro, (x + p * 3, y + p, ancho - p * 6, p))
         pygame.draw.rect(superficie, self.color_borde_claro, (x + p, y + p * 3, p, alto - p * 6))
         
-        # === SOMBRA (Gris oscuro) ===
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + p * 3, y + alto - p * 2, ancho - p * 6, p))
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + ancho - p * 2, y + p * 3, p, alto - p * 6))
         
-        # === BORDE MEDIO ===
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 4, y + p * 2, ancho - p * 8, p))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 2, y + p * 4, p, alto - p * 8))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 4, y + alto - p * 3, ancho - p * 8, p))
@@ -123,7 +109,6 @@ class UsarObjetoMenu:
                     self.cerrar()
                     self._ultima_tecla = tiempo_actual
                     return "CANCELAR"
-        
         return None
     
     def dibujar(self, superficie):
@@ -134,7 +119,6 @@ class UsarObjetoMenu:
         titulo_espacio = 65
         instrucciones_espacio = 32
         padding = 15
-        
         alto_ventana = titulo_espacio + (len(self.equipo_pokemon) * slot_altura) + instrucciones_espacio + padding
         alto_ventana = min(alto_ventana, self.alto_pantalla - 100)
         
@@ -168,7 +152,6 @@ class UsarObjetoMenu:
                 pygame.draw.rect(superficie, self.color_seleccion, rect_sel)
                 pygame.draw.rect(superficie, self.color_seleccion_borde, rect_sel, 2)
                 
-                # Indicador de flecha
                 flecha = self.fuente_nombre.render(">", False, self.color_texto)
                 superficie.blit(flecha, (self.x_ventana + 24, contenido_y + 2))
             

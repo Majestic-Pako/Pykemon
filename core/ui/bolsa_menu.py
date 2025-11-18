@@ -1,75 +1,53 @@
-#Se importa las librerias
 import pygame
 import json
 from core.system.config import *
 
-#Se define la clase
 class BolsaMenu:
     def __init__(self, ancho_pantalla, alto_pantalla):
         self.ancho_pantalla = ancho_pantalla
         self.alto_pantalla = alto_pantalla
-        
-        # Estado
         self.activo = False
         self.bolsa = {}
         self.items_lista = [] 
         self.item_seleccionado = 0
-        
-        # Dimensiones de la ventana (lateral derecho)
         self.ancho_ventana = 350
         self.margen_derecho = 20
         self.x_ventana = ancho_pantalla - self.ancho_ventana - self.margen_derecho
-        
-        # Colores estilo Pokémon GBA
-        self.color_fondo = (248, 248, 248)  # Blanco crema
+        self.color_fondo = (248, 248, 248)  
         self.color_fondo_sombra = (200, 200, 192)
-        
-        # Bordes estilo GBA
         self.color_borde_externo = (0, 0, 0)
         self.color_borde_claro = (248, 248, 248)
         self.color_borde_medio = (104, 104, 104)
         self.color_borde_oscuro = (56, 56, 56)
-        
-        # Texto y selección (amarillo/naranja para items)
         self.color_texto = (80, 80, 80)
         self.color_texto_claro = (120, 120, 120)
-        self.color_cantidad = (200, 120, 40)  # Naranja para cantidad
-        self.color_seleccion = (240, 200, 120)  # Amarillo suave
-        self.color_seleccion_borde = (200, 160, 80)  # Amarillo oscuro
-        
-        # Descripción
+        self.color_cantidad = (200, 120, 40) 
+        self.color_seleccion = (240, 200, 120)  
+        self.color_seleccion_borde = (200, 160, 80)  
         self.color_desc_fondo = (232, 232, 224)
         self.color_desc_borde = (104, 104, 104)
-        
-        # Fuentes
         self.fuente_titulo = pygame.font.Font(None, 26)
         self.fuente_item = pygame.font.Font(None, 20)
         self.fuente_cantidad = pygame.font.Font(None, 18)
         self.fuente_desc = pygame.font.Font(None, 16)
         self.fuente_pequeña = pygame.font.Font(None, 16)
-        
-        # Tamaño del pixel para bordes
         self.pixel = 4
-        
-        # Control de input
         self._ultima_tecla = 0
         self.KEY_DELAY = 150
         
-        # Cargar datos de objetos
         with open("data/objects.json", "r", encoding="utf-8") as f:
             self.objects_data = json.load(f)
-    #Funcion abrir
+    
     def abrir(self, bolsa):
-        """Abre el menú con la bolsa del jugador"""
         self.activo = True
         self.bolsa = bolsa
         self.item_seleccionado = 0
         self._actualizar_items_lista()
         self._ultima_tecla = pygame.time.get_ticks()
-    #Funcion cerrar
+
     def cerrar(self):
         self.activo = False
-    #Funcion actualizacion de items
+    
     def _actualizar_items_lista(self):
         self.items_lista = []
         for categoria in ["curacion", "captura", "debug"]:
@@ -80,21 +58,17 @@ class BolsaMenu:
                         self.items_lista.append((item_key, nombre, cantidad))
     
     def _dibujar_borde_pokemon_gba(self, superficie, x, y, ancho, alto):
-        """Dibuja el borde estilo Pokémon GBA"""
         p = self.pixel
         
-        # Fondo principal
         fondo = pygame.Surface((ancho - p * 4, alto - p * 4))
         fondo.fill(self.color_fondo)
         superficie.blit(fondo, (x + p * 2, y + p * 2))
         
-        # Sombra interna
         sombra = pygame.Surface((ancho - p * 6, alto - p * 6))
         sombra.fill(self.color_fondo_sombra)
         sombra.set_alpha(30)
         superficie.blit(sombra, (x + p * 4, y + p * 4))
         
-        # === BORDE EXTERNO (Negro) ===
         pygame.draw.rect(superficie, self.color_borde_externo, (x + p * 2, y, ancho - p * 4, p))
         pygame.draw.rect(superficie, self.color_borde_externo, (x + p * 2, y + alto - p, ancho - p * 4, p))
         pygame.draw.rect(superficie, self.color_borde_externo, (x, y + p * 2, p, alto - p * 4))
@@ -106,16 +80,10 @@ class BolsaMenu:
         ]
         for ex, ey in esquinas_ext:
             pygame.draw.rect(superficie, self.color_borde_externo, (ex, ey, p, p))
-        
-        # === HIGHLIGHT ===
         pygame.draw.rect(superficie, self.color_borde_claro, (x + p * 3, y + p, ancho - p * 6, p))
         pygame.draw.rect(superficie, self.color_borde_claro, (x + p, y + p * 3, p, alto - p * 6))
-        
-        # === SOMBRA ===
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + p * 3, y + alto - p * 2, ancho - p * 6, p))
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + ancho - p * 2, y + p * 3, p, alto - p * 6))
-        
-        # === BORDE MEDIO ===
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 4, y + p * 2, ancho - p * 8, p))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 2, y + p * 4, p, alto - p * 8))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 4, y + alto - p * 3, ancho - p * 8, p))
@@ -129,23 +97,18 @@ class BolsaMenu:
             pygame.draw.rect(superficie, self.color_borde_medio, (ex, ey, p, p))
     
     def _dibujar_item_slot(self, superficie, item_key, nombre, cantidad, x, y, seleccionado=False):
-        """Dibuja un slot de objeto"""
         slot_alto = 42
         
-        # Fondo seleccionado (amarillo estilo GBA)
         if seleccionado:
             rect_sel = pygame.Rect(x - 2, y - 2, self.ancho_ventana - 36, slot_alto)
             pygame.draw.rect(superficie, self.color_seleccion, rect_sel)
             pygame.draw.rect(superficie, self.color_seleccion_borde, rect_sel, 2)
             
-            # Bullet point en vez de flecha
             pygame.draw.circle(superficie, self.color_texto, (x + 8, y + slot_alto // 2), 3)
         
-        # Nombre del objeto
         nombre_render = self.fuente_item.render(nombre, False, self.color_texto)
         superficie.blit(nombre_render, (x + 18, y + 6))
         
-        # Cantidad (alineada a la derecha, naranja)
         cantidad_texto = f"x{cantidad}"
         cantidad_render = self.fuente_cantidad.render(cantidad_texto, False, self.color_cantidad)
         cantidad_rect = cantidad_render.get_rect(right=x + self.ancho_ventana - 50, y=y + 20)
@@ -154,24 +117,19 @@ class BolsaMenu:
         return slot_alto
     
     def _dibujar_descripcion(self, superficie, item_key, y_pos):
-        """Dibuja la descripción del objeto con estilo GBA"""
         if item_key not in self.objects_data:
             return
         
         descripcion = self.objects_data[item_key]["descripcion"]
         
-        # Fondo para la descripción (más claro que el principal)
         desc_alto = 65
         desc_x = self.x_ventana + 18
         desc_ancho = self.ancho_ventana - 36
         
-        # Fondo
         pygame.draw.rect(superficie, self.color_desc_fondo, (desc_x, y_pos, desc_ancho, desc_alto))
-        # Borde doble
         pygame.draw.rect(superficie, self.color_desc_borde, (desc_x, y_pos, desc_ancho, desc_alto), 2)
         pygame.draw.rect(superficie, self.color_borde_claro, (desc_x + 2, y_pos + 2, desc_ancho - 4, desc_alto - 4), 1)
         
-        # Texto de descripción (dividir en líneas)
         palabras = descripcion.split()
         lineas = []
         linea_actual = ""
@@ -188,19 +146,16 @@ class BolsaMenu:
         if linea_actual:
             lineas.append(linea_actual)
         
-        # Dibujar líneas (máximo 3)
         for i, linea in enumerate(lineas[:3]):
             linea_render = self.fuente_desc.render(linea, False, self.color_texto)
             superficie.blit(linea_render, (desc_x + 10, y_pos + 8 + (i * 18)))
     
     def manejar_input(self, eventos):
-        """Maneja la navegación y cierre del menú"""
         if not self.activo:
             return None
         
         tiempo_actual = pygame.time.get_ticks()
         
-        #Bucle y condiciones logicas
         for evento in eventos:
             if evento.type == pygame.KEYDOWN:
                 if tiempo_actual - self._ultima_tecla < self.KEY_DELAY:
@@ -234,11 +189,9 @@ class BolsaMenu:
         return None
     
     def dibujar(self, superficie):
-        """Dibuja el menú de bolsa"""
         if not self.activo:
             return
         
-        # Calcular altura dinámica
         slot_altura = 46
         titulo_espacio = 50
         descripcion_espacio = 75
@@ -254,11 +207,9 @@ class BolsaMenu:
         alto_ventana = min(alto_ventana, self.alto_pantalla - 100)
         y_ventana = (self.alto_pantalla - alto_ventana) // 2
         
-        # Dibujar ventana
         self._dibujar_borde_pokemon_gba(superficie, self.x_ventana, y_ventana, 
                                         self.ancho_ventana, alto_ventana)
         
-        # Título con indicador
         if self.items_lista:
             titulo = self.fuente_titulo.render(
                 f"BOLSA ({self.item_seleccionado + 1}/{len(self.items_lista)})", 
@@ -268,22 +219,19 @@ class BolsaMenu:
             titulo = self.fuente_titulo.render("BOLSA", False, self.color_texto)
         
         titulo_rect = titulo.get_rect(centerx=self.x_ventana + self.ancho_ventana // 2, 
-                                       y=y_ventana + 12)
+                                        y=y_ventana + 12)
         superficie.blit(titulo, titulo_rect)
         
-        # Línea separadora
         pygame.draw.line(superficie, self.color_borde_medio,
                         (self.x_ventana + 25, y_ventana + 40),
                         (self.x_ventana + self.ancho_ventana - 25, y_ventana + 40), 2)
         
-        # Verificar si hay objetos
         if not self.items_lista:
             texto = self.fuente_item.render("No tienes objetos", False, self.color_texto)
             texto_rect = texto.get_rect(center=(self.x_ventana + self.ancho_ventana // 2, 
                                                  y_ventana + alto_ventana // 2))
             superficie.blit(texto, texto_rect)
         else:
-            # Dibujar objetos
             contenido_y = y_ventana + titulo_espacio
             
             for i, (item_key, nombre, cantidad) in enumerate(self.items_lista):
@@ -292,13 +240,11 @@ class BolsaMenu:
                                         self.x_ventana + 22, contenido_y, seleccionado)
                 contenido_y += slot_altura
             
-            # Descripción del objeto seleccionado
             if self.items_lista:
                 item_key_sel = self.items_lista[self.item_seleccionado][0]
                 desc_y = y_ventana + alto_ventana - descripcion_espacio - instrucciones_espacio
                 self._dibujar_descripcion(superficie, item_key_sel, desc_y)
         
-        # Instrucciones
         if self.items_lista and self.objects_data[self.items_lista[self.item_seleccionado][0]]["tipo"] in ["curacion", "debug"]:
             if len(self.items_lista) > 1:
                 instrucciones = "Z: Usar  X: Cerrar"

@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bosque.tmx",
+    "activeFile": "pueblo_inicial.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -29,8 +29,8 @@
             "scale": 1.2646875,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 79.0709167284408,
-                "y": 335.65604151223135
+                "x": 302.8416110699283,
+                "y": 319.8418581665431
             }
         },
         "floor.tsx": {
@@ -39,22 +39,25 @@
         },
         "pueblo_inicial.tmx": {
             "expandedObjectLayers": [
-                4,
-                5
+                5,
+                4
             ],
-            "scale": 1.5,
+            "scale": 3,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240,
-                "y": 196.33333333333337
+                "x": 132.66666666666663,
+                "y": 273.8333333333333
             }
         },
         "test_map.tmx": {
+            "expandedObjectLayers": [
+                3
+            ],
             "scale": 1.5,
-            "selectedLayer": 3,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 432.66666666666663,
-                "y": 399.66666666666663
+                "x": 360.3333333333333,
+                "y": 400.33333333333337
             }
         },
         "wall.tsx": {
@@ -71,18 +74,19 @@
     "map.width": 30,
     "openFiles": [
         "pueblo_inicial.tmx",
-        "bosque.tmx"
+        "bosque.tmx",
+        "test_map.tmx"
     ],
     "project": "beta.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "pueblo_inicial.tmx",
+        "test_map.tmx",
         "bosque.tmx",
+        "pueblo_inicial.tmx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/arboles.tsx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/bosque.tsx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/estructuras.tsx",
         "C:/Users/agust/OneDrive/Documentos/GitHub/Pykemon/assets/tilesets/exterior.tsx",
-        "test_map.tmx",
         "wall.tsx",
         "floor.tsx"
     ],

@@ -45,15 +45,10 @@ class DialogoBox:
         sombra.fill(self.color_fondo_sombra)
         sombra.set_alpha(30)
         superficie.blit(sombra, (x + pixel * 4, y + pixel * 4))
-        
-        # === BORDE EXTERNO (Negro) ===
-        # Líneas horizontales
         pygame.draw.rect(superficie, self.color_borde_externo, (x + pixel * 2, y, ancho - pixel * 4, pixel))
         pygame.draw.rect(superficie, self.color_borde_externo, (x + pixel * 2, y + alto - pixel, ancho - pixel * 4, pixel))
-        # Líneas verticales
         pygame.draw.rect(superficie, self.color_borde_externo, (x, y + pixel * 2, pixel, alto - pixel * 4))
         pygame.draw.rect(superficie, self.color_borde_externo, (x + ancho - pixel, y + pixel * 2, pixel, alto - pixel * 4))
-        # Esquinas externas
         esquinas_ext = [
             (x + pixel, y + pixel),
             (x + ancho - pixel * 2, y + pixel),
@@ -63,15 +58,12 @@ class DialogoBox:
         for ex, ey in esquinas_ext:
             pygame.draw.rect(superficie, self.color_borde_externo, (ex, ey, pixel, pixel))
         
-        # === HIGHLIGHT SUPERIOR/IZQUIERDO (Blanco) ===
         pygame.draw.rect(superficie, self.color_borde_claro, (x + pixel * 3, y + pixel, ancho - pixel * 6, pixel))
         pygame.draw.rect(superficie, self.color_borde_claro, (x + pixel, y + pixel * 3, pixel, alto - pixel * 6))
         
-        # === SOMBRA INFERIOR/DERECHA (Gris oscuro) ===
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + pixel * 3, y + alto - pixel * 2, ancho - pixel * 6, pixel))
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + ancho - pixel * 2, y + pixel * 3, pixel, alto - pixel * 6))
         
-        # === BORDE MEDIO (Gris medio) ===
         pygame.draw.rect(superficie, self.color_borde_medio, (x + pixel * 4, y + pixel * 2, ancho - pixel * 8, pixel))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + pixel * 2, y + pixel * 4, pixel, alto - pixel * 8))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + pixel * 4, y + alto - pixel * 3, ancho - pixel * 8, pixel))
@@ -89,7 +81,6 @@ class DialogoBox:
     def dibujar(self, superficie):
         if not self.activo:
             return
-
         margen = 40
         padding = 20
         ancho = 700 - (margen * 2)

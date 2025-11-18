@@ -200,7 +200,7 @@ class BatallaUI:
         ventana.blit(sprite, (60 + offset_x, sprite_y))
         
         # Info box (más a la derecha)
-        info_x = 280  # 60px más a la derecha que la posición original (era 220)
+        info_x = 280  
         info_y = sprite_y
         info_ancho = 280
         info_alto = 95
@@ -253,9 +253,10 @@ class BatallaUI:
             self._dibujar_estado_bolsa(ventana, datos_estado)
 
     def _dibujar_estado_menu(self, ventana, datos):
-        """Dibuja el estado MENU (rojo)"""
+        """Dibuja el estado MENU con nombre del Pokémon activo"""
         opciones = datos["opciones"]
         opcion_actual = datos["opcion_actual"]
+        pokemon_activo = datos.get("pokemon_activo")  # Obtener el Pokémon activo
         
         interfaz_alto = 130
         interfaz_y = self.alto - interfaz_alto
@@ -268,10 +269,19 @@ class BatallaUI:
         # Contenedor principal
         self._dibujar_borde_gba(ventana, contenedor_x, contenedor_y, contenedor_ancho, contenedor_alto)
         
-        # Texto
+        # Texto con nombre del Pokémon
         panel_texto_ancho = int(contenedor_ancho * 2/3)
-        texto_pregunta = self.fuente_normal.render("Que deberia hacer?", False, self.color_texto)
-        ventana.blit(texto_pregunta, (contenedor_x + 20, contenedor_y + 20))
+        
+        if pokemon_activo:
+            texto_pregunta = self.fuente_normal.render(f"Que deberia hacer", False, self.color_texto)
+            ventana.blit(texto_pregunta, (contenedor_x + 20, contenedor_y + 15))
+            
+            # Nombre del Pokémon en línea separada
+            texto_pokemon = self.fuente_normal.render(f"{pokemon_activo.nombre}?", False, self.color_texto)
+            ventana.blit(texto_pokemon, (contenedor_x + 20, contenedor_y + 35))
+        else:
+            texto_pregunta = self.fuente_normal.render("Que deberia hacer?", False, self.color_texto)
+            ventana.blit(texto_pregunta, (contenedor_x + 20, contenedor_y + 20))
         
         instrucciones = self.fuente_pequena.render("Z: Aceptar  X: Volver", False, self.color_texto_claro)
         ventana.blit(instrucciones, (contenedor_x + 20, contenedor_y + contenedor_alto - 25))
@@ -433,7 +443,7 @@ class BatallaUI:
                 pygame.draw.rect(ventana, self.color_ataques_sel_borde, 
                                (mov_x + margen_sel, mov_y + margen_sel, 
                                 boton_ancho - margen_sel * 2, boton_alto - margen_sel * 2), 
-                               2, border_radius=4)
+                                2, border_radius=4)
 
             if i < len(movimientos) and isinstance(movimientos[i], dict):
                 nombre_movimiento = movimientos[i].get('nombre', '---')
@@ -663,9 +673,9 @@ class BatallaUI:
             # Selección (amarillo)
             if i == opcion_actual:
                 pygame.draw.rect(ventana, self.color_bolsa_sel, 
-                               (lista_x - 5, pos_y - 2, contenedor_ancho - 40, item_alto - 2))
+                                (lista_x - 5, pos_y - 2, contenedor_ancho - 40, item_alto - 2))
                 pygame.draw.rect(ventana, self.color_bolsa_sel_borde, 
-                               (lista_x - 5, pos_y - 2, contenedor_ancho - 40, item_alto - 2), 2)
+                                (lista_x - 5, pos_y - 2, contenedor_ancho - 40, item_alto - 2), 2)
                 color_texto = self.color_texto
                 indicador = self.fuente_pequena.render(">", False, self.color_texto)
                 ventana.blit(indicador, (lista_x - 15, pos_y + 5))

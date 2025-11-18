@@ -5,40 +5,29 @@ class MenuManager:
     def __init__(self, ancho_pantalla, alto_pantalla):
         self.ancho_pantalla = ancho_pantalla
         self.alto_pantalla = alto_pantalla
-
-        # Estado
         self.activo = False
         self.opcion_seleccionada = 0
         self.opciones = ["POKEMON", "BOLSA", "SALIR"]
-
-        # Layout 
         self.ancho_menu = 200
         self.alto_menu = 250
         self.x_menu = ancho_pantalla - self.ancho_menu - 30
         self.y_menu = 50
         self.y_inicio = self.y_menu + 70
         self.espacio_opcion = 45
-
         self.color_fondo = (248, 248, 248)  
         self.color_fondo_sombra = (200, 200, 192)
-        
         self.color_borde_externo = (0, 0, 0)
         self.color_borde_claro = (248, 248, 248)
         self.color_borde_medio = (104, 104, 104)
         self.color_borde_oscuro = (56, 56, 56)
-        
-        # Texto y selección
         self.color_texto = (80, 80, 80)  
         self.color_seleccion = (200, 120, 120)  
         self.color_seleccion_borde = (160, 80, 80)  
         self.color_info = (112, 112, 112)
-        
         self.pixel = 4
-
         self.fuente_titulo = pygame.font.Font(None, 28)
         self.fuente_opcion = pygame.font.Font(None, 22)
         self.fuente_small = pygame.font.Font(None, 16)
-
         self._ultima_tecla = 0
         self.KEY_DELAY = 150
 
@@ -55,10 +44,8 @@ class MenuManager:
         for evento in eventos:
             if evento.type != pygame.KEYDOWN:
                 continue
-
             if tiempo_actual - self._ultima_tecla < self.KEY_DELAY:
                 continue
-
             if evento.key == pygame.K_UP:
                 self.opcion_seleccionada = (self.opcion_seleccionada - 1) % len(self.opciones)
                 self._ultima_tecla = tiempo_actual
@@ -72,7 +59,6 @@ class MenuManager:
                 self.activo = False
                 self._ultima_tecla = tiempo_actual
                 return None
-
         return None
 
     def _dibujar_borde_pokemon_gba(self, superficie, x, y, ancho, alto):
@@ -87,13 +73,11 @@ class MenuManager:
         sombra.set_alpha(30)
         superficie.blit(sombra, (x + p * 4, y + p * 4))
         
-        # === BORDE EXTERNO (Negro) ===
         pygame.draw.rect(superficie, self.color_borde_externo, (x + p * 2, y, ancho - p * 4, p))
         pygame.draw.rect(superficie, self.color_borde_externo, (x + p * 2, y + alto - p, ancho - p * 4, p))
         pygame.draw.rect(superficie, self.color_borde_externo, (x, y + p * 2, p, alto - p * 4))
         pygame.draw.rect(superficie, self.color_borde_externo, (x + ancho - p, y + p * 2, p, alto - p * 4))
         
-        # Esquinas externas
         esquinas_ext = [
             (x + p, y + p), (x + ancho - p * 2, y + p),
             (x + p, y + alto - p * 2), (x + ancho - p * 2, y + alto - p * 2)
@@ -101,21 +85,15 @@ class MenuManager:
         for ex, ey in esquinas_ext:
             pygame.draw.rect(superficie, self.color_borde_externo, (ex, ey, p, p))
         
-        # === HIGHLIGHT (Blanco) ===
         pygame.draw.rect(superficie, self.color_borde_claro, (x + p * 3, y + p, ancho - p * 6, p))
         pygame.draw.rect(superficie, self.color_borde_claro, (x + p, y + p * 3, p, alto - p * 6))
-        
-        # === SOMBRA (Gris oscuro) ===
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + p * 3, y + alto - p * 2, ancho - p * 6, p))
         pygame.draw.rect(superficie, self.color_borde_oscuro, (x + ancho - p * 2, y + p * 3, p, alto - p * 6))
-        
-        # === BORDE MEDIO (Gris medio) ===
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 4, y + p * 2, ancho - p * 8, p))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 2, y + p * 4, p, alto - p * 8))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + p * 4, y + alto - p * 3, ancho - p * 8, p))
         pygame.draw.rect(superficie, self.color_borde_medio, (x + ancho - p * 3, y + p * 4, p, alto - p * 8))
         
-        # Esquinas internas
         esquinas_int = [
             (x + p * 2, y + p * 2), (x + ancho - p * 3, y + p * 2),
             (x + p * 2, y + alto - p * 3), (x + ancho - p * 3, y + alto - p * 3)

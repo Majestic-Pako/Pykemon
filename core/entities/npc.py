@@ -2,7 +2,6 @@
 import pygame 
 from core.system.config import *
 
-#NPC, declara los atributos de las cosa y la inicializacion de todo
 class NPC(pygame.sprite.Sprite):
     def __init__(self, x, y, nombre, sprite_id,dialog_id='Sin dialogo',npc_id='?'):
         super().__init__()
@@ -14,21 +13,26 @@ class NPC(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
         self.interaction_rect = self.rect.inflate(TAMAÑO_CUADRADO, TAMAÑO_CUADRADO)
     
-    #Carga el sprite y placeholder todavia no se que es
     def cargar_sprite(self):
+        ruta_sprite = f"assets/sprites/npcs/{self.sprite_id}.png"
         try:
-            # Cambiar por la ruta correcta del sprite para diferentes tipos de NPCs
-            ruta_sprite = f"assets/sprites/npcs/{self.sprite_id}.png"
+            #print(f"[DEBUG] Intentando cargar: {ruta_sprite}")
+            #print(f"[DEBUG] sprite_id recibido: '{self.sprite_id}'")
             sprite = pygame.image.load(ruta_sprite)
-            sprite = pygame.transform.scale(sprite, (TAMAÑO_CUADRADO, TAMAÑO_CUADRADO))
-            print(f"Sprite cargado: {ruta_sprite} para NPC '{self.nombre}'")
+            sprite = pygame.transform.scale(sprite, (16 * 2, 24 * 2))
+            print(f"[OK] Sprite cargado exitosamente: {ruta_sprite} para NPC '{self.nombre}'")
             return sprite
-        except FileNotFoundError:
-            # Placeholder amarillo por ahora
-            placeholder = pygame.Surface((TAMAÑO_CUADRADO, TAMAÑO_CUADRADO))
+        except FileNotFoundError as e:
+            print(f"[ERROR] FileNotFoundError: {e}")
+            print(f"[ERROR] Ruta buscada: {ruta_sprite}")
+            placeholder = pygame.Surface((16 * 2, 24 * 2))
             placeholder.fill((255, 255, 0))
             return placeholder
+        except Exception as e:
+            print(f"[ERROR] Excepción inesperada: {type(e).__name__}: {e}")
+            placeholder = pygame.Surface((16 * 2, 24 * 2))
+            placeholder.fill((255, 0, 0))  
+            return placeholder
     
-    #Dibuja con la imagen y la camara la superficie y pasa esos parametros para la funcion
     def dibujar(self, superficie, camera):
         superficie.blit(self.image, camera.apply(self.rect))
