@@ -57,10 +57,11 @@ class Mapa:
                     if self.npcs:
                         print(f"[OK] Cargados {len(self.npcs)} NPCs")
             except ValueError:
-                print("[WARN] Capa 'NPC' no encontrada - continuando sin NPCs")
+                print("[WARN] Capa 'NPC' no encontrada")
+            '''
             except Exception as e:
                 print(f"[WARN] Error cargando NPCs: {e}")
-        
+            '''
             self.zonas_combate = []
             try:
                 combate_layer = self.tmx_data.get_layer_by_name("Combate")
@@ -82,9 +83,10 @@ class Mapa:
                     #print(f"[OK] Cargadas {len(self.zonas_combate)} zonas de combate")
             except ValueError:
                 print("[WARN] Capa 'Combate' no encontrada")
+            '''
             except Exception as e:
                 print(f"[WARN] Error cargando zonas de combate: {e}")
-            
+            '''
             self.portales = []
             try:
                 portal_layer = self.tmx_data.get_layer_by_name("Portal")
@@ -103,11 +105,13 @@ class Mapa:
                         }
                         self.portales.append(portal)
                     #print(f"[OK] Cargados {len(self.portales)} portales")
+            
             except ValueError:
                 print("[WARN] Capa 'Portal' no encontrada")
+            '''
             except Exception as e:
                 print(f"[WARN] Error cargando portales: {e}")
-                
+            '''
         except Exception as e:
             print(f"[ERROR] Error cargando mapa: {e}")
             raise

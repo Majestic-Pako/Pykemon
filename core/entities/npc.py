@@ -20,16 +20,16 @@ class NPC(pygame.sprite.Sprite):
             #print(f"[DEBUG] sprite_id recibido: '{self.sprite_id}'")
             sprite = pygame.image.load(ruta_sprite)
             sprite = pygame.transform.scale(sprite, (16 * 2, 24 * 2))
-            print(f"[OK] Sprite cargado exitosamente: {ruta_sprite} para NPC '{self.nombre}'")
+            #print(f"[OK] Sprite cargado exitosamente: {ruta_sprite} para NPC '{self.nombre}'")
             return sprite
         except FileNotFoundError as e:
-            print(f"[ERROR] FileNotFoundError: {e}")
-            print(f"[ERROR] Ruta buscada: {ruta_sprite}")
+            #print(f"[ERROR] FileNotFoundError: {e}")
+            #print(f"[ERROR] Ruta buscada: {ruta_sprite}")
             placeholder = pygame.Surface((16 * 2, 24 * 2))
             placeholder.fill((255, 255, 0))
             return placeholder
         except Exception as e:
-            print(f"[ERROR] Excepción inesperada: {type(e).__name__}: {e}")
+            #print(f"[ERROR] Excepción inesperada: {type(e).__name__}: {e}")
             placeholder = pygame.Surface((16 * 2, 24 * 2))
             placeholder.fill((255, 0, 0))  
             return placeholder

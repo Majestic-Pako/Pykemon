@@ -69,11 +69,12 @@ class Pokemon:
                 if len(self.movimientos) >= 4:
                     break
             
+            '''
             if self.movimientos:
                 print(f"[OK] {self.nombre} aprendió: {[m['nombre'] for m in self.movimientos]}")
             else:
                 print(f"[WARN] {self.nombre} no tiene movimientos disponibles en nivel {self.nivel}")
-        
+            '''
         except FileNotFoundError as e:
             print(f"[WARN] Error cargando movimientos: {e}")
         except Exception as e:

@@ -5,7 +5,7 @@
         "tipo1": "Planta",
         "tipo2": null,
         "stats": {
-            "ps": 40,
+            "ps": 15,
             "ataque": 45,
             "defensa": 35,
             "ataque_esp": 65,
@@ -21,7 +21,7 @@
         "tipo1": "Fuego",
         "tipo2": null,
         "stats": {
-            "ps": 45,
+            "ps": 10,
             "ataque": 60,
             "defensa": 40,
             "ataque_esp": 70,
@@ -37,7 +37,7 @@
         "tipo1": "Agua",
         "tipo2": null,
         "stats": {
-            "ps": 50,
+            "ps": 20,
             "ataque": 70,
             "defensa": 50,
             "ataque_esp": 50,
@@ -53,7 +53,7 @@
         "tipo1": "Normal",
         "tipo2": null,
         "stats": {
-            "ps": 30,
+            "ps": 10,
             "ataque": 56,
             "defensa": 30,
             "ataque_esp": 25,
@@ -69,7 +69,7 @@
         "tipo1": "Normal",
         "tipo2": "Volador",
         "stats": {
-            "ps": 40,
+            "ps": 15,
             "ataque": 45,
             "defensa": 40,
             "ataque_esp": 35,
