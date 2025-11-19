@@ -36,6 +36,30 @@ class DialogoBox:
             self.cerrar()
         return self.activo
     
+    def _dividir_texto(self, texto, ancho_max):
+        palabras = texto.split(' ')
+        lineas = []
+        linea_actual = ""
+        
+        for palabra in palabras:
+            prueba = linea_actual + palabra + " " if linea_actual else palabra + " "
+            ancho_prueba = self.fuente_texto.size(prueba)[0]
+            
+            if ancho_prueba <= ancho_max:
+                linea_actual = prueba
+            else:
+                if linea_actual:
+                    lineas.append(linea_actual.rstrip())
+                    linea_actual = palabra + " "
+                else:
+                    lineas.append(palabra)
+                    linea_actual = ""
+        
+        if linea_actual:
+            lineas.append(linea_actual.rstrip())
+        
+        return lineas
+    
     def _dibujar_borde_pokemon_gba(self, superficie, x, y, ancho, alto, pixel):
         fondo = pygame.Surface((ancho - pixel * 4, alto - pixel * 4))
         fondo.fill(self.color_fondo)
@@ -81,19 +105,38 @@ class DialogoBox:
     def dibujar(self, superficie):
         if not self.activo:
             return
+        
         margen = 40
         padding = 20
         ancho = 700 - (margen * 2)
-        alto = 100  
         x = margen
-        y = ALTO - alto - margen
         pixel = 4
+        
+        ancho_texto = ancho - (padding * 2)
+        
+        lineas = self._dividir_texto(self.texto, ancho_texto)
+        
+        altura_linea = self.fuente_texto.get_height()
+        espacio_entre_lineas = 4
+        altura_texto = len(lineas) * altura_linea + (len(lineas) - 1) * espacio_entre_lineas
+        
+        altura_info = 28 if self.metadata else 0
+        
+        alto = padding * 2 + altura_texto + altura_info + (10 if self.metadata else 0)
+        
+        # Asegurar altura mínima
+        alto = max(alto, 100)
+        
+        y = ALTO - alto - margen
         
         self._dibujar_borde_pokemon_gba(superficie, x, y, ancho, alto, pixel)
         
-        texto_render = self.fuente_texto.render(self.texto, False, self.color_texto)
-        superficie.blit(texto_render, (x + padding, y + padding))
-        
+        y_texto = y + padding
+        for linea in lineas:
+            texto_render = self.fuente_texto.render(linea, False, self.color_texto)
+            superficie.blit(texto_render, (x + padding, y_texto))
+            y_texto += altura_linea + espacio_entre_lineas
+
         if self.metadata:
             info_texto = " | ".join([f"{k}: {v}" for k, v in self.metadata.items()])
             info_texto += " | Presiona Z"

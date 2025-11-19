@@ -11,6 +11,7 @@ from core.ui.MenuManager import MenuManager
 from core.ui.pokemon_menu import PokemonMenu
 from core.ui.bolsa_menu import BolsaMenu
 from core.ui.use_object_menu import UsarObjetoMenu
+from core.ui.pantalla_inicio import PantallaInicio
 from core.system.batalla import Batalla
 from core.system.portal_manager import PortalManager
 
@@ -19,7 +20,23 @@ ventana_juego = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Pykemon")
 reloj = pygame.time.Clock()
 
-# ========== INICIALIZACIÓN ==========
+# ========== PANTALLA DE INICIO ==========
+pantalla_inicio = PantallaInicio(ANCHO, ALTO)
+
+# Loop de pantalla de inicio
+while pantalla_inicio.esta_activa():
+    delta_time = reloj.get_time()
+    eventos = pygame.event.get()
+    
+    pantalla_inicio.actualizar(eventos, delta_time)
+    pantalla_inicio.dibujar(ventana_juego, delta_time)
+    
+    pygame.display.flip()
+    reloj.tick(60)
+
+print("[INFO] Cargando juego...")
+
+# ========== INICIALIZACIÓN DEL JUEGO ==========
 mapa = Mapa("assets/maps/pueblo_inicial.tmx")
 player = Player(ANCHO, ALTO, mapa.ancho, mapa.alto)
 camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
@@ -106,22 +123,17 @@ while jugando:
 
             # Manejar resultados de batalla
             if resultado == "VICTORIA":
-                # Mostrar mensaje de victoria, esperar a que el jugador presione Z
-                # NO terminar batalla aquí
                 pass
             
             elif resultado == "DERROTA":
-                # Mostrar mensaje de derrota
                 pass
             
             elif resultado == "CAPTURA":
-                # La captura ya se maneja con su secuencia de mensajes
                 if batalla.estado_actual == "MENSAJE":
                     pygame.time.wait(800)
                     batalla.terminar_batalla()
             
             elif resultado == "ESCAPADO":
-                # NO terminar batalla aquí, la transición lo hace automáticamente
                 pass
             
             elif resultado == "TURNO_ENEMIGO":

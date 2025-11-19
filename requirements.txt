@@ -1,4 +1,6 @@
 Aca se dejara la sintaxis para poner en la terminal 
+pip install pygame
+pip install pytmx
 
 Buenas Practicas de commit
 https://www.conventionalcommits.org/en/v1.0.0/
@@ -8,10 +10,12 @@ Capas del Tiled Map Editor
 Capa de patrones #es la estetica del suelo y paredes
 Capa de colisiones #es la capa invisible que delimita donde puede caminar el jugador
 NPC #es la capa donde van los NPCs
+Capa de Esrtructuras #es la capa donde van los objetos con los que puede interactuar el jugador
+Capa de Combate #es la capa donde van los objetos que inician combates
 ---
 
 NPCs Ids
-random:
-Sprite_id= randomNPC_test
-dialog_id= dialogo_NPC_test
-npc_id = 1
+Valores para crear NPCs en el Tiled Map Editor:
+Sprite_id= nombre del sprite del NPC
+dialog_id= nombre del dialogo referenciado en dialogs.json
+npc_id = nombre del NPC para identificarlo en el codigo

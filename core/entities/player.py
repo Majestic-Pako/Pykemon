@@ -35,10 +35,11 @@ class Player(pygame.sprite.Sprite):
         # Pokémon en el equipo para pruebas (después borrar)
         mudkip = Pokemon("mudkip", nivel=5)
         treecko = Pokemon("treecko", nivel=5)
-        self.equipo_pokemon.extend([mudkip, treecko])
+        torchic = Pokemon("torchic", nivel=5)
+        self.equipo_pokemon.extend([mudkip, treecko, torchic])
         self.agregar_objeto("pocion", 5)
         self.agregar_objeto("superpocion", 5)
-        self.agregar_objeto("pokeball", 10)
+        self.agregar_objeto("pokeball", 30)
         self.agregar_objeto("caramelo_raro", 10)
 
     def cargar_sprites_direccionales(self):
@@ -109,8 +110,9 @@ class Player(pygame.sprite.Sprite):
                 area_interaccion = self.rect.inflate(TAMAÑO_CUADRADO, TAMAÑO_CUADRADO)
                 for npc in npcs:
                     if area_interaccion.colliderect(npc.rect):
-                        metadata = {"NPC ID": getattr(npc, "npc_id", None)}
-                        self.dialogo_box.mostrar(getattr(npc, "dialog_id", "Sin dialogo"), metadata)
+                        dialogo_texto = npc.obtener_dialogo()
+                        metadata = {"Nombre": getattr(npc, "npc_id", None)}
+                        self.dialogo_box.mostrar(dialogo_texto, metadata)
                         pygame.time.wait(150)
                         break
         self._z_held = z_now

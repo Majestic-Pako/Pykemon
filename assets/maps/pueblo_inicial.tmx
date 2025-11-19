@@ -74,7 +74,7 @@
   </object>
   <object id="25" x="47.6667" y="288" width="23.3333" height="25.3333">
    <properties>
-    <property name="dialog_id" value="Agus"/>
+    <property name="dialog_id" value="Agustin"/>
     <property name="npc_id" value="Agustin"/>
     <property name="sprite_id" value="Agustin"/>
    </properties>
