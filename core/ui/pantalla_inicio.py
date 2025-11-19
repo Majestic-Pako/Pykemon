@@ -1,48 +1,47 @@
 import pygame
 import sys
+import math
 
 class PantallaInicio:
-    """Pantalla de inicio con animaciones y transiciones"""
     
     def __init__(self, ancho, alto):
         self.ancho = ancho
         self.alto = alto
         
-        # Cargar imagen de presentación
+        self.color_superior = (0, 51, 128)  
+        self.color_inferior = (8, 152, 104)   
+        
         self.imagen_original = self._cargar_imagen()
         self.imagen_escalada = self._escalar_imagen()
         
-        # Estado de la pantalla
+        self.logo_central = self._cargar_logo_central()
+        self.tiempo_logo = 0
+        self.alpha_logo = 0
+        self.fade_in_logo = True
+        
         self.activa = True
         self.iniciando_transicion = False
         
-        # Animación de parpadeo del texto
         self.mostrar_texto = True
         self.tiempo_parpadeo = 0
-        self.velocidad_parpadeo = 500  # ms
+        self.velocidad_parpadeo = 1500  #
         
-        # Animación de fade out
         self.alpha = 255
-        self.velocidad_fade = 8
+        self.velocidad_fade = 2  
         
-        # Fuentes
         try:
-            self.fuente_texto = pygame.font.Font(None, 24)
+            self.fuente_texto = pygame.font.SysFont('courier', 16, bold=True)
         except:
-            self.fuente_texto = pygame.font.SysFont('arial', 24)
+            print("[WARN] No se pudo cargar la fuente pixelart, usando fuente por defecto.")
         
-        # Superficie para fade out
-        self.superficie_fade = pygame.Surface((self.ancho, self.alto))
-        self.superficie_fade.fill((0, 0, 0))
+        self.superficie_fade = pygame.Surface((self.ancho, self.alto), pygame.SRCALPHA)
+        self.superficie_fade.fill((0, 0, 0, 255))
     
     def _cargar_imagen(self):
-        """Carga la imagen de presentación con manejo de errores"""
         try:
             imagen = pygame.image.load("assets/images/presentacion.png")
-            #print("[OK] Imagen de presentación cargada")
             return imagen
         except FileNotFoundError:
-            #print("[ERROR] No se encontró assets/images/presentacion.png")
             placeholder = pygame.Surface((240, 160))
             placeholder.fill((50, 50, 150))
             fuente = pygame.font.Font(None, 48)
@@ -51,61 +50,99 @@ class PantallaInicio:
             placeholder.blit(texto, rect)
             return placeholder
     
+    def _cargar_logo_central(self):
+        try:
+            # Aca va la imagen del logo 
+            logo = pygame.image.load("assets/images/logo_letras.png")
+            return pygame.transform.scale(logo, (300, 100))
+        except FileNotFoundError:
+            placeholder = pygame.Surface((300, 80), pygame.SRCALPHA)
+            placeholder.fill((0, 0, 0, 0))
+            fuente = pygame.font.Font(None, 60)
+            texto = fuente.render("TEXTO", True, (255, 255, 255))
+            rect = texto.get_rect(center=(150, 40))
+            placeholder.blit(texto, rect)
+            return placeholder
+    
     def _escalar_imagen(self):
-        """Escala la imagen manteniendo aspect ratio y centrándola"""
         img_ancho, img_alto = self.imagen_original.get_size()
         
-        # Calcular escalado manteniendo aspect ratio
         escala_x = self.ancho / img_ancho
         escala_y = self.alto / img_alto
         escala = min(escala_x, escala_y)
         
-        # Nuevas dimensiones
         nuevo_ancho = int(img_ancho * escala)
         nuevo_alto = int(img_alto * escala)
         
-        # Escalar imagen
         imagen_escalada = pygame.transform.scale(
             self.imagen_original, 
             (nuevo_ancho, nuevo_alto)
         )
         
-        # Crear superficie centrada con fondo negro
-        superficie_final = pygame.Surface((self.ancho, self.alto))
-        superficie_final.fill((0, 0, 0))
+        superficie_final = pygame.Surface((self.ancho, self.alto), pygame.SRCALPHA)
+        superficie_final.fill((0, 0, 0, 0)) 
         
-        # Centrar la imagen
         pos_x = (self.ancho - nuevo_ancho) // 2
         pos_y = (self.alto - nuevo_alto) // 2
         superficie_final.blit(imagen_escalada, (pos_x, pos_y))
         
         return superficie_final
     
-    def _dibujar_texto_parpadeante(self, superficie, delta_time):
-        """Dibuja el texto de instrucciones con efecto de parpadeo"""
-        # Actualizar parpadeo
-        self.tiempo_parpadeo += delta_time
-        if self.tiempo_parpadeo >= self.velocidad_parpadeo:
-            self.mostrar_texto = not self.mostrar_texto
-            self.tiempo_parpadeo = 0
+    def _dibujar_fondos_color(self, superficie):
+        altura_mitad = self.alto // 2
         
-        # Dibujar solo si está visible
-        if self.mostrar_texto and not self.iniciando_transicion:
-            texto = "Present by croco studio - copyright 2025 derechos de Game freak"
+        pygame.draw.rect(superficie, self.color_superior, 
+                        (0, 0, self.ancho, altura_mitad))
+        
+        pygame.draw.rect(superficie, self.color_inferior, 
+                        (0, altura_mitad, self.ancho, altura_mitad))
+    
+    def _dibujar_textos_separados(self, superficie, delta_time):
+        self.tiempo_parpadeo += delta_time
+        
+        ciclo = (self.tiempo_parpadeo % self.velocidad_parpadeo) / self.velocidad_parpadeo
+        alpha_texto = int(155 + 100 * math.sin(ciclo * math.pi * 2)) 
+        
+        if not self.iniciando_transicion:
+            texto_superior = "© 2025 Game Freak - Non commercial use"
+            texto_sup_render = self.fuente_texto.render(texto_superior, True, (255, 255, 255))
+            texto_sup_render.set_alpha(alpha_texto)
+            rect_sup = texto_sup_render.get_rect(center=(self.ancho // 2, 25))
+            superficie.blit(texto_sup_render, rect_sup)
             
-            # Renderizar texto con sombra
-            sombra = self.fuente_texto.render(texto, True, (0, 0, 0))
-            texto_render = self.fuente_texto.render(texto, True, (255, 255, 255))
+            texto_inferior = "Presented by Croco Studio"
+            texto_inf_render = self.fuente_texto.render(texto_inferior, True, (255, 255, 255))
+            texto_inf_render.set_alpha(alpha_texto)
+            rect_inf = texto_inf_render.get_rect(center=(self.ancho // 2, self.alto - 25))
+            superficie.blit(texto_inf_render, rect_inf)
+    
+    def _actualizar_logo_central(self, delta_time):
+        self.tiempo_logo += delta_time
+        velocidad_fade_logo = 2.0  
+        
+        if self.fade_in_logo:
+            self.alpha_logo += velocidad_fade_logo * delta_time / 10
+            if self.alpha_logo >= 255:
+                self.alpha_logo = 255
+                self.fade_in_logo = False
+        else:
+            # Fade out
+            if self.tiempo_logo > 500: 
+                self.alpha_logo -= velocidad_fade_logo * delta_time / 15
+                if self.alpha_logo <= 0:
+                    self.alpha_logo = 0
+                    self.fade_in_logo = True
+                    self.tiempo_logo = 0
+    
+    def _dibujar_logo_central(self, superficie):
+        if self.alpha_logo > 0 and not self.iniciando_transicion:
+            logo_con_alpha = self.logo_central.copy()
+            logo_con_alpha.set_alpha(int(self.alpha_logo))
             
-            # Centrar en la parte inferior
-            rect_texto = texto_render.get_rect(center=(self.ancho // 2, self.alto - 40))
-            rect_sombra = sombra.get_rect(center=(self.ancho // 2 + 2, self.alto - 38))
-            
-            superficie.blit(sombra, rect_sombra)
-            superficie.blit(texto_render, rect_texto)
+            rect_logo = logo_con_alpha.get_rect(center=(self.ancho // 2, self.alto // 2))
+            superficie.blit(logo_con_alpha, rect_logo)
     
     def _actualizar_fade_out(self):
-        """Actualiza la animación de fade out"""
         if self.iniciando_transicion:
             self.alpha -= self.velocidad_fade
             if self.alpha <= 0:
@@ -113,7 +150,6 @@ class PantallaInicio:
                 self.activa = False
     
     def _verificar_input(self, eventos):
-        """Verifica si se presionó alguna tecla para iniciar"""
         for evento in eventos:
             if evento.type == pygame.QUIT:
                 pygame.quit()
@@ -124,34 +160,29 @@ class PantallaInicio:
                                     pygame.K_SPACE, pygame.K_RETURN]:
                     if not self.iniciando_transicion:
                         self.iniciando_transicion = True
-                        print("[INFO] Iniciando transición...")
     
     def actualizar(self, eventos, delta_time):
-        """Actualiza el estado de la pantalla de inicio"""
         if not self.activa:
             return False
         
         self._verificar_input(eventos)
         self._actualizar_fade_out()
+        self._actualizar_logo_central(delta_time)
         
         return self.activa
     
     def dibujar(self, superficie, delta_time):
-        """Dibuja la pantalla de inicio con todas sus animaciones"""
         if not self.activa and self.alpha <= 0:
             return
         
-        # Dibujar imagen de fondo
+        self._dibujar_fondos_color(superficie)
         superficie.blit(self.imagen_escalada, (0, 0))
+        self._dibujar_logo_central(superficie)  # Logo en el centro
+        self._dibujar_textos_separados(superficie, delta_time)
         
-        # Dibujar texto parpadeante
-        self._dibujar_texto_parpadeante(superficie, delta_time)
-        
-        # Aplicar fade out si está en transición
         if self.iniciando_transicion and self.alpha < 255:
             self.superficie_fade.set_alpha(255 - self.alpha)
             superficie.blit(self.superficie_fade, (0, 0))
     
     def esta_activa(self):
-        """Retorna si la pantalla de inicio sigue activa"""
         return self.activa

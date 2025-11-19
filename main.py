@@ -34,7 +34,7 @@ while pantalla_inicio.esta_activa():
     pygame.display.flip()
     reloj.tick(60)
 
-print("[INFO] Cargando juego...")
+#print("[INFO] Cargando juego...")
 
 # ========== INICIALIZACIÓN DEL JUEGO ==========
 mapa = Mapa("assets/maps/pueblo_inicial.tmx")
