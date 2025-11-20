@@ -153,3 +153,13 @@ Entrega mínima jugable:
 
 ---
 
+# 👥 **Equipo de Desarrollo**
+
+| Miembro | Roles |
+|--------|--------|
+| **Majestic-Pako (Agustín Choque)** | ![Dev](https://img.shields.io/badge/Programador_Principal-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Arquitectura](https://img.shields.io/badge/Arquitectura_del_Juego-4B7BEC?style=for-the-badge) ![GameDesign](https://img.shields.io/badge/Game_Design-9B59B6?style=for-the-badge) |
+| **EstebanRacana (Esteban)** | ![Programador](https://img.shields.io/badge/Programador-2ECC71?style=for-the-badge&logo=python&logoColor=white) |
+| **tomy2311 (Thomas)** | ![Programador](https://img.shields.io/badge/Programador-2ECC71?style=for-the-badge) ![Tester](https://img.shields.io/badge/Beta_Tester-F1C40F?style=for-the-badge) |
+| **Anthony2080 (ToñoShark)** | ![Diseño](https://img.shields.io/badge/Diseño-FF5733?style=for-the-badge&logo=adobephotoshop&logoColor=white) |
+
+---
