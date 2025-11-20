@@ -20,6 +20,8 @@
 
 ```bash
 pip install pygame
+```
+```bash
 pip install pytmx
 ```
 
