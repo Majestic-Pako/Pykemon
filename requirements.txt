@@ -16,6 +16,6 @@ Capa de Combate #es la capa donde van los objetos que inician combates
 
 NPCs Ids
 Valores para crear NPCs en el Tiled Map Editor:
-Sprite_id= nombre del sprite del NPC
+sprite_id= nombre del sprite del NPC
 dialog_id= nombre del dialogo referenciado en dialogs.json
 npc_id = nombre del NPC para identificarlo en el codigo

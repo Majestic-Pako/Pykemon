@@ -52,7 +52,7 @@ class NPC(pygame.sprite.Sprite):
             ruta_sprite = f"assets/sprites/npcs/{self.sprite_id}.png"
             sprite = pygame.image.load(ruta_sprite)
             sprite = pygame.transform.scale(sprite, (16 * 2, 24 * 2))
-            print(f"Sprite cargado: {ruta_sprite} para NPC '{self.nombre}'")
+            #print(f"Sprite cargado: {ruta_sprite} para NPC '{self.nombre}'")
             return sprite
         except FileNotFoundError:
             placeholder = pygame.Surface((16 * 2, 24 * 2))

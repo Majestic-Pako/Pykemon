@@ -9,7 +9,6 @@ class Mapa:
             from core.system.config import ESCALA_JUEGO
         
             self.tmx_data = load_pygame(ruta_mapa)
-            print("[OK] Mapa cargado correctamente:", ruta_mapa)
             self.mapa_tmx = self.tmx_data
         
             self.ancho = self.mapa_tmx.width * self.mapa_tmx.tilewidth * ESCALA_JUEGO
@@ -26,7 +25,6 @@ class Mapa:
                         obj.height * ESCALA_JUEGO
                     )
                     self.colisiones.append(rect)
-                #print(f"[OK] Cargadas {len(self.colisiones)} colisiones")
         
             self.npcs = []
             try:
@@ -51,17 +49,23 @@ class Mapa:
                             )
                             self.npcs.append(npc)
                         except Exception as e:
-                            #print(f"[WARN] No se pudo cargar NPC '{nombre}': {e}")
+                            # [DEBUG] Descomentar para ver NPCs que no pudieron cargar
+                            # print(f"[WARN] No se pudo cargar NPC '{nombre}': {e}")
                             continue
                     
                     if self.npcs:
-                        print(f"[OK] Cargados {len(self.npcs)} NPCs")
+                        # [DEBUG] Descomentar para confirmar NPCs cargados
+                        # print(f"[OK] Cargados {len(self.npcs)} NPCs")
+                        pass
             except ValueError:
-                print("[WARN] Capa 'NPC' no encontrada")
-            '''
+                # [DEBUG] Descomentar si necesitas saber cuando falta la capa NPC
+                # print("[WARN] Capa 'NPC' no encontrada")
+                pass
             except Exception as e:
-                print(f"[WARN] Error cargando NPCs: {e}")
-            '''
+                # [DEBUG] Descomentar para errores generales de NPCs
+                # print(f"[WARN] Error cargando NPCs: {e}")
+                pass
+            
             self.zonas_combate = []
             try:
                 combate_layer = self.tmx_data.get_layer_by_name("Combate")
@@ -80,13 +84,17 @@ class Mapa:
                             "min_level": obj.properties.get('min_level', 2)
                         }
                         self.zonas_combate.append(zona)
-                    #print(f"[OK] Cargadas {len(self.zonas_combate)} zonas de combate")
+                    # [DEBUG] Descomentar para confirmar zonas de combate cargadas
+                    # print(f"[OK] Cargadas {len(self.zonas_combate)} zonas de combate")
             except ValueError:
-                print("[WARN] Capa 'Combate' no encontrada")
-            '''
+                # [DEBUG] Descomentar si necesitas saber cuando falta la capa Combate
+                # print("[WARN] Capa 'Combate' no encontrada")
+                pass
             except Exception as e:
-                print(f"[WARN] Error cargando zonas de combate: {e}")
-            '''
+                # [DEBUG] Descomentar para errores generales de zonas de combate
+                # print(f"[WARN] Error cargando zonas de combate: {e}")
+                pass
+            
             self.portales = []
             try:
                 portal_layer = self.tmx_data.get_layer_by_name("Portal")
@@ -104,14 +112,17 @@ class Mapa:
                             "target_y": int(obj.properties.get('target_y', 0)) * ESCALA_JUEGO
                         }
                         self.portales.append(portal)
-                    #print(f"[OK] Cargados {len(self.portales)} portales")
-            
+                    # [DEBUG] Descomentar para confirmar portales cargados
+                    # print(f"[OK] Cargados {len(self.portales)} portales")
             except ValueError:
-                print("[WARN] Capa 'Portal' no encontrada")
-            '''
+                # [DEBUG] Descomentar si necesitas saber cuando falta la capa Portal
+                # print("[WARN] Capa 'Portal' no encontrada")
+                pass
             except Exception as e:
-                print(f"[WARN] Error cargando portales: {e}")
-            '''
+                # [DEBUG] Descomentar para errores generales de portales
+                # print(f"[WARN] Error cargando portales: {e}")
+                pass
+                
         except Exception as e:
             print(f"[ERROR] Error cargando mapa: {e}")
             raise
@@ -131,5 +142,6 @@ class Mapa:
                              self.mapa_tmx.tileheight * ESCALA_JUEGO)
                         )
                         superficie.blit(tile_escalado, (px - camera.x, py - camera.y))
+        
         for npc in self.npcs:
             npc.dibujar(superficie, camera)

@@ -51,16 +51,25 @@ class PantallaInicio:
             return placeholder
     
     def _cargar_logo_central(self):
+        max_w, max_h = 300, 100
         try:
-            # Aca va la imagen del logo 
-            logo = pygame.image.load("assets/images/logo_letras.png")
-            return pygame.transform.scale(logo, (300, 100))
+            logo = pygame.image.load("assets/images/letras.png").convert_alpha()
+            w, h = logo.get_size()
+            escala = min(max_w / w, max_h / h)
+            nuevo_w = max(1, int(w * escala))
+            nuevo_h = max(1, int(h * escala))
+            logo_escalado = pygame.transform.smoothscale(logo, (nuevo_w, nuevo_h))
+            contenedor = pygame.Surface((max_w, max_h), pygame.SRCALPHA)
+            contenedor.fill((0, 0, 0, 0))
+            rect = logo_escalado.get_rect(center=(max_w // 2, max_h // 2))
+            contenedor.blit(logo_escalado, rect)
+            return contenedor
         except FileNotFoundError:
-            placeholder = pygame.Surface((300, 80), pygame.SRCALPHA)
+            placeholder = pygame.Surface((max_w, max_h), pygame.SRCALPHA)
             placeholder.fill((0, 0, 0, 0))
             fuente = pygame.font.Font(None, 60)
             texto = fuente.render("TEXTO", True, (255, 255, 255))
-            rect = texto.get_rect(center=(150, 40))
+            rect = texto.get_rect(center=(max_w // 2, max_h // 2))
             placeholder.blit(texto, rect)
             return placeholder
     

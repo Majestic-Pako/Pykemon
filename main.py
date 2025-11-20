@@ -20,10 +20,8 @@ ventana_juego = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Pykemon")
 reloj = pygame.time.Clock()
 
-# ========== PANTALLA DE INICIO ==========
 pantalla_inicio = PantallaInicio(ANCHO, ALTO)
 
-# Loop de pantalla de inicio
 while pantalla_inicio.esta_activa():
     delta_time = reloj.get_time()
     eventos = pygame.event.get()
@@ -34,9 +32,7 @@ while pantalla_inicio.esta_activa():
     pygame.display.flip()
     reloj.tick(60)
 
-#print("[INFO] Cargando juego...")
 
-# ========== INICIALIZACIÓN DEL JUEGO ==========
 mapa = Mapa("assets/maps/pueblo_inicial.tmx")
 player = Player(ANCHO, ALTO, mapa.ancho, mapa.alto)
 camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
@@ -55,35 +51,22 @@ resultado = None
 
 
 def verificar_encuentro_pokemon(player_rect, zonas_combate):
-    """
-    Verifica si hay encuentro en zonas de combate del mapa actual
-    
-    Returns:
-        Pokemon enemigo si hay encuentro, None si no
-    """
     for zona in zonas_combate:
-        # Verificar colisión
         if player_rect.colliderect(zona["rect"]):
-            # Tirar dado para encuentro
             if random.random() < zona["encounter_rate"]:
                 
-                # Obtener pokemon_ids (puede ser string o lista separada por comas)
                 pokemon_ids_raw = zona.get("pokemon_ids", "")
                 
-                # Parsear múltiples pokémon si hay comas
                 if "," in pokemon_ids_raw:
                     pokemon_ids = [p.strip().lower() for p in pokemon_ids_raw.split(",")]
                 else:
                     pokemon_ids = [pokemon_ids_raw.strip().lower()]
                 
-                # Elegir uno aleatorio
                 pokemon_id = random.choice(pokemon_ids)
                 
-                # Nivel aleatorio (min_level + 0 a 2)
                 nivel_base = zona.get("min_level", 3)
                 nivel = nivel_base + random.randint(0, 2)
                 
-                # Crear Pokémon enemigo
                 try:
                     pokemon_enemigo = Pokemon(pokemon_id, nivel=nivel)
                     return pokemon_enemigo
@@ -93,12 +76,9 @@ def verificar_encuentro_pokemon(player_rect, zonas_combate):
     
     return None
 
-
-# ========== GAME LOOP ==========
 while jugando:
     eventos = pygame.event.get()
     
-    # === MANEJO DE EVENTOS ===
     for evento in eventos: 
         if evento.type == pygame.QUIT: 
             jugando = False
@@ -113,15 +93,12 @@ while jugando:
     
     teclas = pygame.key.get_pressed()
     
-    # ========== SISTEMA DE BATALLA ==========
     if batalla.activo or batalla.transicion_activa:
         batalla.actualizar_transicion()
         batalla.actualizar_animacion()
         
         if batalla.activo:
             resultado = batalla.procesar_eventos(eventos)
-
-            # Manejar resultados de batalla
             if resultado == "VICTORIA":
                 pass
             
@@ -156,7 +133,6 @@ while jugando:
                 pygame.time.wait(500)
                 batalla.turno_enemigo()
 
-    # ========== MENÚS ==========
     elif menu.activo:
         accion = menu.manejar_input(eventos)
         
@@ -202,36 +178,28 @@ while jugando:
             bolsa_menu.abrir(player.bolsa)
             objeto_a_usar = None
 
-    # ========== EXPLORACIÓN ==========
     else:
-        # Actualizar transición de portales
         portal_manager.actualizar_transicion()
         
-        # Cambiar mapa cuando la pantalla esté negra
         if portal_manager.debe_cambiar_mapa():
             destino = portal_manager.obtener_destino()
             
             if destino:
-                # Cargar nuevo mapa
                 mapa = Mapa(f"assets/maps/{destino['mapa']}")
                 
-                # Reposicionar jugador
                 player.rect.center = (destino['x'], destino['y'])
                 
-                # Actualizar dimensiones del mapa para límites
                 player.ancho_mapa = mapa.ancho
                 player.alto_mapa = mapa.alto
 
                 camera = Camera(mapa.ancho, mapa.alto, ANCHO, ALTO)
                 camera.update(player.rect)
         
-        # Solo permitir movimiento si no hay transición activa
         if player.puede_moverse() and not portal_manager.transicion_activa:
             player.update(teclas)
             manejar_movimiento(player, teclas, mapa.colisiones, mapa.npcs)
             camera.update(player.rect)
         
-            # Verificar portales (solo si no hay transición activa)
             if not portal_manager.transicion_activa:
                 portal_info = portal_manager.verificar_portal(player.rect, mapa.portales)
                 if portal_info:
@@ -241,11 +209,9 @@ while jugando:
                         portal_info["target_y"]
                     )
         
-        # Manejar diálogos con NPCs (solo si no hay transición)
         if not portal_manager.transicion_activa:
             player.manejar_dialogo(teclas, mapa.npcs)
         
-        # Encuentros Pokémon (solo si no hay transición de portal)
         if not portal_manager.transicion_activa:
             frame_count += 1
             if frame_count % 30 == 0:
@@ -255,19 +221,16 @@ while jugando:
                     if pokemon_enemigo:
                         batalla.iniciar_transicion(player, pokemon_enemigo)
     
-    # ========== RENDERIZADO ==========
     ventana_juego.fill(BLACK)
     mapa.dibujar(ventana_juego, camera)
     player.dibujar(ventana_juego, camera)
     
-    # UI (siempre al final)
     menu.dibujar(ventana_juego)
     pokemon_menu.dibujar(ventana_juego)
     bolsa_menu.dibujar(ventana_juego)
     usar_objeto_menu.dibujar(ventana_juego)
     batalla.dibujar(ventana_juego)
     
-    # Transición de portales 
     portal_manager.dibujar_transicion(ventana_juego)
     
     pygame.display.flip()
